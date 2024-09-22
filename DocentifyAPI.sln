@@ -2,6 +2,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docentify", "Docentify\Docentify.csproj", "{969E8912-5B8C-4B95-AF33-239DA7433A7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docentify.Application", "Docentify.Application\Docentify.Application.csproj", "{AE3DE8C6-034E-429E-8559-70A76BEC9957}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docentify.Domain", "Docentify.Domain\Docentify.Domain.csproj", "{19B32AC6-EDC4-48F0-8690-D86522CCB680}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Docentify.Infrastructure", "Docentify.Infrastructure\Docentify.Infrastructure.csproj", "{5A8C100F-7638-4D26-B35D-37C959CF8AD4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +18,17 @@ Global
 		{969E8912-5B8C-4B95-AF33-239DA7433A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{969E8912-5B8C-4B95-AF33-239DA7433A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{969E8912-5B8C-4B95-AF33-239DA7433A7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE3DE8C6-034E-429E-8559-70A76BEC9957}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE3DE8C6-034E-429E-8559-70A76BEC9957}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE3DE8C6-034E-429E-8559-70A76BEC9957}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE3DE8C6-034E-429E-8559-70A76BEC9957}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19B32AC6-EDC4-48F0-8690-D86522CCB680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19B32AC6-EDC4-48F0-8690-D86522CCB680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19B32AC6-EDC4-48F0-8690-D86522CCB680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19B32AC6-EDC4-48F0-8690-D86522CCB680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A8C100F-7638-4D26-B35D-37C959CF8AD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A8C100F-7638-4D26-B35D-37C959CF8AD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A8C100F-7638-4D26-B35D-37C959CF8AD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A8C100F-7638-4D26-B35D-37C959CF8AD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

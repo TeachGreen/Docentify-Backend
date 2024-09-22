@@ -1,9 +1,9 @@
-using DocentifyAPI.Configurations;
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.ConfigureDependencies(builder.Configuration);
-builder.Services.AddSwaggerGen();
+builder.Services.ConfigureServices();
+builder.Services.ConfigureApplication();
+builder.Services.ConfigureInfrastructure(builder.Configuration);
+builder.Services.AddMvc();
 
 var app = builder.Build();
 
@@ -13,6 +13,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+
+app.MapControllers();
 
 app.Run();
