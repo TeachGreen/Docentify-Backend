@@ -6,6 +6,8 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     public DbSet<UserPasswordHashEntity> PasswordHashes { get; set; }
     
     public DbSet<ActivityEntity> Activities { get; set; }
+    
+    public DbSet<CardEntity> Cards { get; set; }
 
     public DbSet<CourseEntity> Courses { get; set; }
 
@@ -28,6 +30,10 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     public DbSet<StyleVariableEntity> Stylevariables { get; set; }
 
     public DbSet<StyleVariablesValueEntity> Stylevariablesvalues { get; set; }
+    
+    public DbSet<UserCardEntity> Usercards { get; set; }
+    
+    public DbSet<UserNotificationEntity> UserNotifications { get; set; }
     
     public DbSet<UserPasswordHashEntity> Userpasswordhashes { get; set; }
 
@@ -63,6 +69,11 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
 
         modelBuilder.Entity<CourseEntity>(entity =>
         {
+            entity.Property(e => e.CreationDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("creation_date");
+            
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("courses");
@@ -77,6 +88,10 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.Property(e => e.Name)
                 .HasMaxLength(45)
                 .HasColumnName("name");
+            entity.Property(e => e.UpdateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("update_date");
 
             entity.HasOne(d => d.Institution).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.InstitutionId)
@@ -317,38 +332,99 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.Property(e => e.BirthDate)
                 .HasColumnType("date")
                 .HasColumnName("birthDate");
+            entity.Property(e => e.CreationDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("creation_date");
             entity.Property(e => e.Document)
                 .HasMaxLength(45)
                 .HasColumnName("document");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .HasColumnName("email");
+            entity.Property(e => e.Gender)
+                .HasMaxLength(2)
+                .IsFixedLength()
+                .HasColumnName("gender");
             entity.Property(e => e.Name)
                 .HasMaxLength(150)
                 .HasColumnName("name");
             entity.Property(e => e.Telephone)
                 .HasMaxLength(45)
                 .HasColumnName("telephone");
-            
+            entity.Property(e => e.UpdateDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("update_date");
+
             entity.HasMany(d => d.Institutions).WithMany(p => p.Users)
                 .UsingEntity<Dictionary<string, object>>(
                     "Association",
                     r => r.HasOne<InstitutionEntity>().WithMany()
                         .HasForeignKey("InstitutionId")
-                        .HasConstraintName("associations_ibfk_2"),
+                        .HasConstraintName("fk_Users_has_Institutions_Institutions1"),
                     l => l.HasOne<UserEntity>().WithMany()
                         .HasForeignKey("UserId")
-                        .HasConstraintName("associations_ibfk_1"),
+                        .HasConstraintName("fk_Users_has_Institutions_Users1"),
                     j =>
                     {
                         j.HasKey("UserId", "InstitutionId").HasName("PRIMARY");
                         j.ToTable("associations");
-                        j.HasIndex(new[] { "InstitutionId" }, "institutionId");
+                        j.HasIndex(new[] { "InstitutionId" }, "fk_Users_has_Institutions_Institutions1");
                         j.IndexerProperty<int>("UserId").HasColumnName("userId");
                         j.IndexerProperty<int>("InstitutionId").HasColumnName("institutionId");
                     });
         });
 
+
+        modelBuilder.Entity<UserCardEntity>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.CardId }).HasName("PRIMARY");
+
+            entity.ToTable("usercards");
+
+            entity.HasIndex(e => e.CardId, "card_id");
+
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.CardId).HasColumnName("card_id");
+            entity.Property(e => e.AcquirementDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("acquirement_date");
+
+            entity.HasOne(d => d.Card).WithMany(p => p.UserCards)
+                .HasForeignKey(d => d.CardId)
+                .HasConstraintName("usercards_ibfk_2");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserCards)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("usercards_ibfk_1");
+        });
+
+        modelBuilder.Entity<UserNotificationEntity>(entity =>
+        {
+            entity.HasKey(e => new { e.Id, e.UserId }).HasName("PRIMARY");
+
+            entity.ToTable("usernotifications");
+
+            entity.HasIndex(e => e.UserId, "user_id");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.NotificationDate)
+                .HasMaxLength(45)
+                .HasColumnName("notification_date");
+            entity.Property(e => e.Text)
+                .HasMaxLength(250)
+                .HasColumnName("text");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserNotifications)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("usernotifications_ibfk_1");
+        });
+        
         modelBuilder.Entity<UserPasswordHashEntity>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");

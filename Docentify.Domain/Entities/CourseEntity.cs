@@ -7,6 +7,10 @@ public class CourseEntity : BaseEntity
     public string? Description { get; set; }
 
     public int InstitutionId { get; set; }
+    
+    public DateTime? CreationDate { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
 
     public virtual ICollection<CourseStyleEntity> CourseStyles { get; set; } = new List<CourseStyleEntity>();
 
