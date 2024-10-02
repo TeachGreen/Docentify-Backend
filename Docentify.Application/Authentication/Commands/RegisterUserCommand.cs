@@ -1,4 +1,4 @@
-namespace Docentify.Application.Users.Commands;
+namespace Docentify.Application.Authentication.Commands;
 
 public class RegisterUserCommand
 {

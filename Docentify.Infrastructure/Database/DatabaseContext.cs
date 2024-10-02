@@ -3,7 +3,6 @@ namespace Docentify.Infrastructure.Database;
 public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
     public DbSet<UserEntity> Users { get; set; }
-    public DbSet<UserPasswordHashEntity> PasswordHashes { get; set; }
     
     public DbSet<ActivityEntity> Activities { get; set; }
     
@@ -11,15 +10,15 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
 
     public DbSet<CourseEntity> Courses { get; set; }
 
-    public DbSet<CourseStyleEntity> Coursestyles { get; set; }
+    public DbSet<CourseStyleEntity> CourseStyles { get; set; }
     
     public DbSet<EnrollmentEntity> Enrollments { get; set; }
     
-    public DbSet<FileStepEntity> Filesteps { get; set; }
+    public DbSet<FileStepEntity> FileSteps { get; set; }
 
     public DbSet<InstitutionEntity> Institutions { get; set; }
 
-    public DbSet<InstitutionPasswordHashEntity> Institutionpasswordhashes { get; set; }
+    public DbSet<InstitutionPasswordHashEntity> InstitutionPasswordHashes { get; set; }
 
     public DbSet<OptionEntity> Options { get; set; }
 
@@ -27,25 +26,25 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
 
     public DbSet<StepEntity> Steps { get; set; }
 
-    public DbSet<StyleVariableEntity> Stylevariables { get; set; }
+    public DbSet<StyleVariableEntity> StyleVariables { get; set; }
 
-    public DbSet<StyleVariablesValueEntity> Stylevariablesvalues { get; set; }
+    public DbSet<StyleVariablesValueEntity> StyleVariablesValues { get; set; }
     
-    public DbSet<UserCardEntity> Usercards { get; set; }
+    public DbSet<UserCardEntity> UserCards { get; set; }
     
     public DbSet<UserNotificationEntity> UserNotifications { get; set; }
     
-    public DbSet<UserPasswordHashEntity> Userpasswordhashes { get; set; }
+    public DbSet<UserPasswordHashEntity> UserPasswordHashes { get; set; }
 
-    public DbSet<UserPreferenceEntity> Userpreferences { get; set; }
+    public DbSet<UserPreferenceEntity> UserPreferences { get; set; }
 
-    public DbSet<UserPreferencesValueEntity> Userpreferencesvalues { get; set; }
+    public DbSet<UserPreferencesValueEntity> UserPreferencesValues { get; set; }
 
-    public DbSet<UserProgressEntity> Userprogresses { get; set; }
+    public DbSet<UserProgressEntity> UserProgresses { get; set; }
 
-    public DbSet<UserScoreEntity> Userscores { get; set; }
+    public DbSet<UserScoreEntity> UserScores { get; set; }
 
-    public DbSet<VideoStepEntity> Videosteps { get; set; }
+    public DbSet<VideoStepEntity> VideoSteps { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

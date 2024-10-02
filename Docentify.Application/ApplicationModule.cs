@@ -1,4 +1,5 @@
 ﻿using Docentify.Application.Users.Handlers;
+using Docentify.Application.Authentication.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Docentify.Application;
@@ -14,9 +15,9 @@ public static class ApplicationModule
 
     private static IServiceCollection ConfigureHandlers(this IServiceCollection services)
     {
-        services.AddScoped<UserCommandHandler>();
+        services.AddScoped<AuthenticationCommandHandler>();
         
-        services.AddScoped<UserQueryHandler>();
+        services.AddScoped<AuthenticationQueryHandler>();
         
         return services;
     }

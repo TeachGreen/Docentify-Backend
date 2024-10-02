@@ -1,5 +1,6 @@
-using Docentify.Application.Users.Commands;
-using Docentify.Application.Users.Handlers;
+using Docentify.Application.Authentication.Commands;
+using Docentify.Application.Authentication.Handlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocentifyAPI.Controllers;
@@ -7,16 +8,15 @@ namespace DocentifyAPI.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class UserController(
-    UserQueryHandler queryHandler,
-    UserCommandHandler commandHandler,
+    // UserQueryHandler queryHandler,
+    // UserCommandHandler commandHandler,
     IConfiguration configuration) : ControllerBase
 {
-    
-    [HttpPost("register")]
-    public async Task<IActionResult> RegisterUser([FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> RegisterUser(CancellationToken cancellationToken)
     {
-        var result = await commandHandler.RegisterUserAsync(command, cancellationToken);
-        return Ok();
+        // var result = await commandHandler.RegisterUserAsync(command, cancellationToken);
+        return Ok("teste");
     }
-    
 }
