@@ -1,5 +1,5 @@
-﻿using Docentify.Application.Users.Handlers;
-using Docentify.Application.Authentication.Handlers;
+﻿using Docentify.Application.Authentication.Handlers;
+using Docentify.Application.Authentication.Validators;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Docentify.Application;
@@ -24,6 +24,9 @@ public static class ApplicationModule
 
     private static IServiceCollection ConfigureValidators(this IServiceCollection services)
     {
-        return services;
+        return services
+            .AddScoped<LoginCommandValidator>()
+            .AddScoped<RegisterInstitutionCommandValidator>()
+            .AddScoped<RegisterUserCommandValidator>();
     }
 }

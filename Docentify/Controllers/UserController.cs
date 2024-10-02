@@ -1,5 +1,3 @@
-using Docentify.Application.Authentication.Commands;
-using Docentify.Application.Authentication.Handlers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

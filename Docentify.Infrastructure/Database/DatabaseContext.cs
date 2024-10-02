@@ -211,8 +211,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                 .HasMaxLength(200)
                 .HasColumnName("salt");
 
-            entity.HasOne(d => d.Institution).WithMany(p => p.InstitutionPasswordHashes)
-                .HasForeignKey(d => d.InstitutionId)
+            entity.HasOne(d => d.Institution).WithOne(p => p.InstitutionPasswordHash)
                 .HasConstraintName("institutionpasswordhashes_ibfk_1");
         });
 

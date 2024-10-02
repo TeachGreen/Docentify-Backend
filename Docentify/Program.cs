@@ -22,6 +22,7 @@ app.UseCookiePolicy(new CookiePolicyOptions
         MinimumSameSitePolicy = SameSiteMode.Strict,
     });
 
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
