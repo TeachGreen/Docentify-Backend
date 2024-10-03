@@ -21,7 +21,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCookiePolicy(new CookiePolicyOptions
     {
-        MinimumSameSitePolicy = SameSiteMode.Strict,
+        MinimumSameSitePolicy = SameSiteMode.Strict
     });
 
 app.UseMiddleware<ExceptionMiddleware>();

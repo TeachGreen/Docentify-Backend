@@ -39,10 +39,9 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             Email = command.Email!,
             Telephone = command.Telephone,
             Document = command.Document!,
-            Gender = command.Gender
+            Gender = command.Gender,
+            UserPasswordHash = passwordHash
         };
-
-        user.UserPasswordHash = passwordHash;
         await context.Users.AddAsync(user, cancellationToken);
         
         await context.SaveChangesAsync(cancellationToken);
@@ -73,10 +72,10 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
 
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.Name),
-            new Claim(JwtRegisteredClaimNames.Aud, "Users"),
-            new Claim(ClaimTypes.Role, "User")
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.UniqueName, user.Name),
+            new(JwtRegisteredClaimNames.Aud, "Users"),
+            new(ClaimTypes.Role, "User")
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
@@ -92,7 +91,10 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
 
         var jwtString = jwtHandler.WriteToken(jwt);
 
-        return new LoginViewModel { Jwt = jwtString};
+        return new LoginViewModel
+        {
+            Jwt = jwtString
+        };
     }
 
     public async Task<RegisterInstitutionViewModel> RegisterInstitutionAsync(RegisterInstitutionCommand command,
@@ -115,9 +117,8 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             Name = command.Name!,
             Email = command.Email!,
             Telephone = command.Telephone,
+            InstitutionPasswordHash = passwordHash
         };
-
-        institution.InstitutionPasswordHash = passwordHash;
         await context.Institutions.AddAsync(institution, cancellationToken);
         
         await context.SaveChangesAsync(cancellationToken);
@@ -145,10 +146,10 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
         
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Email, institution.Email),
-            new Claim(JwtRegisteredClaimNames.UniqueName, institution.Name),
-            new Claim(JwtRegisteredClaimNames.Aud, "Institutions"),
-            new Claim(ClaimTypes.Role, "Institution")
+            new(JwtRegisteredClaimNames.Email, institution.Email),
+            new(JwtRegisteredClaimNames.UniqueName, institution.Name),
+            new(JwtRegisteredClaimNames.Aud, "Institutions"),
+            new(ClaimTypes.Role, "Institution")
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
@@ -164,6 +165,9 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
 
         var jwtString = jwtHandler.WriteToken(jwt);
 
-        return new LoginViewModel { Jwt = jwtString};
+        return new LoginViewModel
+        {
+            Jwt = jwtString
+        };
     }
 }

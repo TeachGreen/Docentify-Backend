@@ -5,5 +5,3 @@ global using System.ComponentModel.DataAnnotations.Schema;
 global using Docentify.Domain.Common.Entities;
 
 # endregion
-
-global using System.Net;

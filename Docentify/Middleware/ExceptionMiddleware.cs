@@ -17,38 +17,21 @@ public class ExceptionMiddleware(RequestDelegate next)
             var response = context.Response;
             response.ContentType = "application/json";
 
-            switch (error)
+            response.StatusCode = error switch
             {
-                case ForbiddenException e:
-                    response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    break;
-
-                case UnauthorizedException:
-                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    break;
-
-                case NotFoundException:
-                    response.StatusCode = (int)HttpStatusCode.NotFound;
-                    break;
-
-                case ConflictException:
-                    response.StatusCode = (int)HttpStatusCode.Conflict;
-                    break;
-                
-                case BadRequestException:
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    break;
-
-                default:
-                    response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    break;
-            }
+                ForbiddenException => (int)HttpStatusCode.Forbidden,
+                UnauthorizedException => (int)HttpStatusCode.Unauthorized,
+                NotFoundException => (int)HttpStatusCode.NotFound,
+                ConflictException => (int)HttpStatusCode.Conflict,
+                BadRequestException => (int)HttpStatusCode.BadRequest,
+                _ => (int)HttpStatusCode.InternalServerError
+            };
 
             var result = JsonSerializer.Serialize(new
             {
                 statusCode = response.StatusCode,
                 title = error.GetType().Name,
-                error = error.Message,
+                error = error.Message
             });
 
             await response.WriteAsync(result);

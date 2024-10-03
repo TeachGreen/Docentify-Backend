@@ -21,7 +21,7 @@ public static class Authentication
                         ValidIssuer = configuration["Jwt:Issuer"],
                         ValidAudiences = configuration.GetSection("Jwt:Audiences").Get<string[]>(),
                         IssuerSigningKey =
-                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!)),
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
