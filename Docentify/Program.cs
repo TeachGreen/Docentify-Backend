@@ -3,7 +3,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureServices();
 builder.Services.ConfigureApplication();
 builder.Services.ConfigureInfrastructure(builder.Configuration);
-builder.Services.AddMvc();
+builder.Services.AddMvc().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
 builder.Services.ConfigureAuthentication(builder.Configuration);
 

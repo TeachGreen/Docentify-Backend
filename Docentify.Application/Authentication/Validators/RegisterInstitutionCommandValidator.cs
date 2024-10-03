@@ -21,7 +21,6 @@ public class RegisterInstitutionCommandValidator : AbstractValidator<RegisterIns
             .NotEmpty();
         
         RuleFor(x => x.Telephone)
-            .Null()
             .NotEmpty()
             .Matches(@"^\d{11}$");
     }

@@ -10,7 +10,7 @@ public class UserController(
     // UserCommandHandler commandHandler,
     IConfiguration configuration) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Roles = "Institution")]
     [HttpGet]
     public async Task<IActionResult> RegisterUser(CancellationToken cancellationToken)
     {

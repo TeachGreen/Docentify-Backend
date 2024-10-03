@@ -19,7 +19,7 @@ public static class Authentication
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuer = configuration["Jwt:Issuer"],
-                        ValidAudience = configuration["Jwt:Audience"],
+                        ValidAudiences = configuration.GetSection("Jwt:Audiences").Get<string[]>(),
                         IssuerSigningKey =
                             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),
                         ValidateIssuer = true,

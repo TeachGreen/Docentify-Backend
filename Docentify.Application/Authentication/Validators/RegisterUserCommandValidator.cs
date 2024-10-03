@@ -14,8 +14,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
         RuleFor(x => x.BirthDate)
             .NotNull()
             .NotEmpty()
-            .LessThan(DateTime.Now)
-            .GreaterThan(DateTime.Now.AddYears(18));
+            .LessThan(DateTime.Now.Subtract(TimeSpan.FromDays(365 * 18)));
         
         RuleFor(x => x.Email)
             .NotNull()
@@ -27,7 +26,6 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .NotEmpty();
         
         RuleFor(x => x.Telephone)
-            .Null()
             .NotEmpty()
             .Matches(@"^\d{11}$");
 

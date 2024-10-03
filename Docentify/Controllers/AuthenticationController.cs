@@ -1,6 +1,7 @@
 using Docentify.Application.Authentication.Commands;
 using Docentify.Application.Authentication.Handlers;
 using Docentify.Application.Authentication.Validators;
+using Docentify.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocentifyAPI.Controllers;
@@ -17,7 +18,7 @@ public class AuthenticationController(
     {
         var validation = await validator.ValidateAsync(command, cancellationToken);
         if (!validation.IsValid)
-            return BadRequest(validation.Errors);
+            throw new BadRequestException(validation.Errors[0].ErrorMessage);
         
         var result = await commandHandler.RegisterUserAsync(command, cancellationToken);
         return Created(string.Empty, result);
@@ -28,7 +29,7 @@ public class AuthenticationController(
     {
         var validation = await validator.ValidateAsync(command, cancellationToken);
         if (!validation.IsValid)
-            return BadRequest(validation.Errors);
+            throw new BadRequestException(validation.Errors[0].ErrorMessage);
         
         var result = await commandHandler.LoginUserAsync(command, cancellationToken);
         return Ok(result);
@@ -39,7 +40,7 @@ public class AuthenticationController(
     {
         var validation = await validator.ValidateAsync(command, cancellationToken);
         if (!validation.IsValid)
-            return BadRequest(validation.Errors);
+            throw new BadRequestException(validation.Errors[0].ErrorMessage);
         
         var result = await commandHandler.RegisterInstitutionAsync(command, cancellationToken);
         return Created(string.Empty, result);
@@ -50,7 +51,7 @@ public class AuthenticationController(
     {
         var validation = await validator.ValidateAsync(command, cancellationToken);
         if (!validation.IsValid)
-            return BadRequest(validation.Errors);
+            throw new BadRequestException(validation.Errors[0].ErrorMessage);
         
         var result = await commandHandler.LoginInstitutionAsync(command, cancellationToken);
         return Ok(result);

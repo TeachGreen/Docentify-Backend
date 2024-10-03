@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Docentify.Application.Authentication.Commands;
+using Docentify.Application.Authentication.ViewModels;
 using Docentify.Application.Utils;
 using Docentify.Domain.Entities;
 using Docentify.Domain.Exceptions;
@@ -11,12 +12,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 using JwtSecurityTokenHandler = System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler;
+using RegisterUserCommand = Docentify.Application.Authentication.Commands.RegisterUserCommand;
 
 namespace Docentify.Application.Authentication.Handlers;
 
 public class AuthenticationCommandHandler(DatabaseContext context, IConfiguration configuration)
 {
-    public async Task<UserEntity> RegisterUserAsync(RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<RegisterUserViewModel> RegisterUserAsync(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         var parsedPasswordHash =
             AuthenticationUtils.CreatePasswordHash(command.Password!, configuration["PasswordPepper"]!);
@@ -25,7 +27,10 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
 
         if (await context.Users.Where(user => user.Email == command.Email)
                 .SingleOrDefaultAsync(cancellationToken) is not null)
-            throw new ConflictException("An user with that e-mail already exists");
+            throw new ConflictException("An user with that e-mail is already registered");
+        if (await context.Users.Where(user => user.Document == command.Document)
+                .SingleOrDefaultAsync(cancellationToken) is not null)
+            throw new ConflictException("An user with that document is already registered");
 
         var user = new UserEntity
         {
@@ -37,32 +42,41 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             Gender = command.Gender
         };
 
+        user.UserPasswordHash = passwordHash;
         await context.Users.AddAsync(user, cancellationToken);
-        passwordHash.User = user;
-        await context.UserPasswordHashes.AddAsync(passwordHash, cancellationToken);
-
+        
         await context.SaveChangesAsync(cancellationToken);
-        return user;
+        return new RegisterUserViewModel
+        {
+            Name = user.Name, 
+            BirthDate = user.BirthDate, 
+            Email = user.Email, 
+            Gender = user.Gender,
+            Telephone = user.Telephone,
+            Document = user.Document
+        };
     }
 
-    public async Task<string> LoginUserAsync(LoginCommand command, CancellationToken cancellationToken)
+    public async Task<LoginViewModel> LoginUserAsync(LoginCommand command, CancellationToken cancellationToken)
     {
-        var parsedPasswordHash =
-            AuthenticationUtils.CreatePasswordHash(command.Password!, configuration["PasswordPepper"]!);
-
         var user = await context.Users.AsNoTracking()
             .Include(u => u.UserPasswordHash)
             .FirstOrDefaultAsync(u => u.Email == command.Email, cancellationToken);
 
         if (user is null)
-            throw new NotFoundException("Invalid user credentials");
-        if (user.UserPasswordHash.HashedPassword != parsedPasswordHash.Item1)
+            throw new NotFoundException("No user with that e-mail was found");
+        
+        var parsedPasswordHash =
+            AuthenticationUtils.RecreatePasswordHash(command.Password!, user.UserPasswordHash.Salt, configuration["PasswordPepper"]!);
+        if (user.UserPasswordHash.HashedPassword != parsedPasswordHash)
             throw new UnauthorizedException("Invalid user credentials");
 
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.Name)
+            new Claim(JwtRegisteredClaimNames.UniqueName, user.Name),
+            new Claim(JwtRegisteredClaimNames.Aud, "Users"),
+            new Claim(ClaimTypes.Role, "User")
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
@@ -78,10 +92,10 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
 
         var jwtString = jwtHandler.WriteToken(jwt);
 
-        return jwtString;
+        return new LoginViewModel { Jwt = jwtString};
     }
 
-    public async Task<InstitutionEntity> RegisterInstitutionAsync(RegisterInstitutionCommand command,
+    public async Task<RegisterInstitutionViewModel> RegisterInstitutionAsync(RegisterInstitutionCommand command,
         CancellationToken cancellationToken)
     {
         var parsedPasswordHash =
@@ -91,7 +105,10 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
         
         if (await context.Institutions.Where(institution => institution.Email == command.Email)
                 .SingleOrDefaultAsync(cancellationToken) is not null)
-            throw new ConflictException("An institution with that e-mail already exists");
+            throw new ConflictException("An institution with that e-mail is already registered");
+        if (await context.Institutions.Where(institution => institution.Name == command.Name)
+                .SingleOrDefaultAsync(cancellationToken) is not null)
+            throw new ConflictException("An institution with that name is already registered");
 
         var institution = new InstitutionEntity
         {
@@ -100,32 +117,38 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             Telephone = command.Telephone,
         };
 
+        institution.InstitutionPasswordHash = passwordHash;
         await context.Institutions.AddAsync(institution, cancellationToken);
-        passwordHash.Institution = institution;
-        await context.InstitutionPasswordHashes.AddAsync(passwordHash, cancellationToken);
-
+        
         await context.SaveChangesAsync(cancellationToken);
-        return institution;
+        return new RegisterInstitutionViewModel
+        {
+            Name = institution.Name, 
+            Email = institution.Email, 
+            Telephone = institution.Telephone
+        };
     }
 
-    public async Task<string> LoginInstitutionAsync(LoginCommand command, CancellationToken cancellationToken)
+    public async Task<LoginViewModel> LoginInstitutionAsync(LoginCommand command, CancellationToken cancellationToken)
     {
-        var parsedPasswordHash =
-            AuthenticationUtils.CreatePasswordHash(command.Password!, configuration["PasswordPepper"]!);
-
         var institution = await context.Institutions.AsNoTracking()
             .Include(u => u.InstitutionPasswordHash)
             .FirstOrDefaultAsync(u => u.Email == command.Email, cancellationToken);
 
         if (institution is null)
-            throw new NotFoundException("Invalid institution credentials");
-        if (institution.InstitutionPasswordHash.HashedPassword != parsedPasswordHash.Item1)
+            throw new NotFoundException("No institution with that e-mail was found");
+        
+        var parsedPasswordHash =
+            AuthenticationUtils.RecreatePasswordHash(command.Password!, institution.InstitutionPasswordHash.Salt, configuration["PasswordPepper"]!);
+        if (institution.InstitutionPasswordHash.HashedPassword != parsedPasswordHash)
             throw new UnauthorizedException("Invalid institution credentials");
         
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Email, institution.Email),
-            new Claim(JwtRegisteredClaimNames.UniqueName, institution.Name)
+            new Claim(JwtRegisteredClaimNames.UniqueName, institution.Name),
+            new Claim(JwtRegisteredClaimNames.Aud, "Institutions"),
+            new Claim(ClaimTypes.Role, "Institution")
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
@@ -141,6 +164,6 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
 
         var jwtString = jwtHandler.WriteToken(jwt);
 
-        return jwtString;
+        return new LoginViewModel { Jwt = jwtString};
     }
 }
