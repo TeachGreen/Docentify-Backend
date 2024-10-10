@@ -454,7 +454,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.Property(e => e.DefaultValue)
                 .HasMaxLength(45)
                 .HasColumnName("defaultValue");
-            entity.Property(e => e.PreferenceName)
+            entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("preferenceName");
         });
@@ -472,12 +472,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.Property(e => e.Value)
                 .HasMaxLength(45)
                 .HasColumnName("value");
-
-            entity.HasOne(d => d.Preference).WithMany(p => p.Userpreferencesvalues)
-                .HasForeignKey(d => d.PreferenceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("userpreferencesvalues_ibfk_2");
-
+            
             entity.HasOne(d => d.User).WithMany(p => p.UserPreferencesValues)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("userpreferencesvalues_ibfk_1");
