@@ -5,6 +5,7 @@ using Docentify.Application.Authentication.Commands;
 using Docentify.Application.Authentication.ViewModels;
 using Docentify.Application.Utils;
 using Docentify.Domain.Entities;
+using Docentify.Domain.Entities.User;
 using Docentify.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Docentify.Infrastructure.Database;
@@ -117,6 +118,8 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             Name = command.Name!,
             Email = command.Email!,
             Telephone = command.Telephone,
+            Document = command.Document!,
+            Address = command.Address,
             InstitutionPasswordHash = passwordHash
         };
         await context.Institutions.AddAsync(institution, cancellationToken);
@@ -126,7 +129,9 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
         {
             Name = institution.Name, 
             Email = institution.Email, 
-            Telephone = institution.Telephone
+            Telephone = institution.Telephone,
+            Document = institution.Document,
+            Address = institution.Address,
         };
     }
 

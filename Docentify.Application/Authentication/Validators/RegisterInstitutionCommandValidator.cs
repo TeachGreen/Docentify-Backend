@@ -23,5 +23,12 @@ public class RegisterInstitutionCommandValidator : AbstractValidator<RegisterIns
         RuleFor(x => x.Telephone)
             .NotEmpty()
             .Matches(@"^\d{11}$");
+        
+        RuleFor(x => x.Document)
+            .NotNull()
+            .NotEmpty();
+        
+        RuleFor(x => x.Address)
+            .NotEmpty();
     }
 }

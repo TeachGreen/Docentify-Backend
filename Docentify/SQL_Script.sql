@@ -26,9 +26,14 @@ CREATE TABLE IF NOT EXISTS Institutions
     name      VARCHAR(150) NOT NULL,
     email     VARCHAR(100) NOT NULL,
     telephone VARCHAR(45)  NULL,
+    address   VARCHAR(350) NULL,
+    document  VARCHAR(45)  NOT NULL,
+    creation_date DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    update_date   DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX email_UNIQUE (email ASC) VISIBLE,
-    UNIQUE INDEX name_UNIQUE (name ASC) VISIBLE
+    UNIQUE INDEX name_UNIQUE (name ASC) VISIBLE,
+    UNIQUE INDEX document_UNIQUE (document ASC) VISIBLE
 );
 
 DROP TABLE IF EXISTS UserPasswordHashes;
@@ -194,7 +199,7 @@ DROP TABLE IF EXISTS UserPreferences;
 CREATE TABLE IF NOT EXISTS UserPreferences
 (
     id             INT         NOT NULL AUTO_INCREMENT,
-    preferenceName VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL,
     defaultValue   VARCHAR(45) NOT NULL,
     PRIMARY KEY (id)
 );
@@ -296,7 +301,7 @@ CREATE TABLE IF NOT EXISTS UserNotifications
     id                INT          NOT NULL AUTO_INCREMENT,
     user_id           INT          NOT NULL,
     text              VARCHAR(250) NOT NULL,
-    notification_date VARCHAR(45)  NULL,
+    date              DATETIME     NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id, user_id),
     FOREIGN KEY (user_id) REFERENCES Users (id)
         ON DELETE CASCADE
@@ -331,11 +336,11 @@ VALUES
     ('hash10', 'salt10', 10);
 
 -- Inserir instituições
-INSERT INTO Institutions (name, email, telephone)
+INSERT INTO Institutions (name, email, telephone, document, address)
 VALUES
-    ('Universidade Federal', 'contato@ufederal.edu.br', '1134567890'),
-    ('Instituto de Educação Superior', 'contato@iesup.com.br', '1187654321'),
-    ('Faculdade Privada', 'contato@facprivada.com.br', '1143216789');
+    ('Universidade Federal', 'contato@ufederal.edu.br', '1134567890', '123', 'Rua tal'),
+    ('Instituto de Educação Superior', 'contato@iesup.com.br', '1187654321', '123', 'Rua tal'),
+    ('Faculdade Privada', 'contato@facprivada.com.br', '1143216789', '123', 'Rua tal');
 
 -- Inserir cursos
 INSERT INTO Courses (name, description, institutionId)
@@ -374,7 +379,7 @@ VALUES
     (10, 91);
 
 -- Inserir preferências de usuários
-INSERT INTO UserPreferences (preferenceName, defaultValue)
+INSERT INTO UserPreferences (name, defaultValue)
 VALUES
     ('Preferência de Tema', 'Claro'),
     ('Notificações', 'Ativado'),

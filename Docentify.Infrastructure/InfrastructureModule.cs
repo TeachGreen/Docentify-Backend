@@ -1,5 +1,3 @@
-using Docentify.Infrastructure.Repositories;
-
 namespace Docentify.Infrastructure;
 
 public static class InfrastructureModule
@@ -24,8 +22,6 @@ public static class InfrastructureModule
     
     private static IServiceCollection ConfigureRepositories(this IServiceCollection services)
     {
-        services.AddScoped<UserRepository>();
-        
         return services;
     }
 }

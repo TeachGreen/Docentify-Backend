@@ -1,185 +1,33 @@
+using Docentify.Domain.Entities.User;
+
 namespace Docentify.Infrastructure.Database;
 
 public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
     public DbSet<UserEntity> Users { get; set; }
     
-    public DbSet<ActivityEntity> Activities { get; set; }
-    
-    public DbSet<CardEntity> Cards { get; set; }
-
-    public DbSet<CourseEntity> Courses { get; set; }
-
-    public DbSet<CourseStyleEntity> CourseStyles { get; set; }
-    
-    public DbSet<EnrollmentEntity> Enrollments { get; set; }
-    
-    public DbSet<FileStepEntity> FileSteps { get; set; }
-
     public DbSet<InstitutionEntity> Institutions { get; set; }
 
     public DbSet<InstitutionPasswordHashEntity> InstitutionPasswordHashes { get; set; }
 
-    public DbSet<OptionEntity> Options { get; set; }
-
-    public DbSet<QuestionEntity> Questions { get; set; }
-
-    public DbSet<StepEntity> Steps { get; set; }
-
-    public DbSet<StyleVariableEntity> StyleVariables { get; set; }
-
-    public DbSet<StyleVariablesValueEntity> StyleVariablesValues { get; set; }
-    
-    public DbSet<UserCardEntity> UserCards { get; set; }
-    
-    public DbSet<UserNotificationEntity> UserNotifications { get; set; }
-    
     public DbSet<UserPasswordHashEntity> UserPasswordHashes { get; set; }
 
     public DbSet<UserPreferenceEntity> UserPreferences { get; set; }
 
     public DbSet<UserPreferencesValueEntity> UserPreferencesValues { get; set; }
-
-    public DbSet<UserProgressEntity> UserProgresses { get; set; }
-
-    public DbSet<UserScoreEntity> UserScores { get; set; }
-
-    public DbSet<VideoStepEntity> VideoSteps { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ActivityEntity>(entity =>
-        {
-            entity.HasKey(e => new { e.Id, e.StepId }).HasName("PRIMARY");
-
-            entity.ToTable("activities");
-
-            entity.HasIndex(e => e.StepId, "stepId");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("id");
-            entity.Property(e => e.StepId).HasColumnName("stepId");
-
-            entity.HasOne(d => d.Step).WithMany(p => p.Activities)
-                .HasForeignKey(d => d.StepId)
-                .HasConstraintName("activities_ibfk_1");
-        });
-
-        modelBuilder.Entity<CourseEntity>(entity =>
-        {
-            entity.Property(e => e.CreationDate)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime")
-                .HasColumnName("creation_date");
-            
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("courses");
-
-            entity.HasIndex(e => e.InstitutionId, "institutionId");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Description)
-                .HasColumnType("text")
-                .HasColumnName("description");
-            entity.Property(e => e.InstitutionId).HasColumnName("institutionId");
-            entity.Property(e => e.Name)
-                .HasMaxLength(45)
-                .HasColumnName("name");
-            entity.Property(e => e.UpdateDate)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime")
-                .HasColumnName("update_date");
-
-            entity.HasOne(d => d.Institution).WithMany(p => p.Courses)
-                .HasForeignKey(d => d.InstitutionId)
-                .HasConstraintName("courses_ibfk_1");
-        });
-
-        modelBuilder.Entity<CourseStyleEntity>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("coursestyles");
-
-            entity.HasIndex(e => e.CourseId, "courseId");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CourseId).HasColumnName("courseId");
-            entity.Property(e => e.Name)
-                .HasMaxLength(45)
-                .HasColumnName("name");
-
-            entity.HasOne(d => d.Course).WithMany(p => p.CourseStyles)
-                .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("coursestyles_ibfk_1");
-        });
-
-        modelBuilder.Entity<EnrollmentEntity>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("enrollments");
-
-            entity.HasIndex(e => e.CourseId, "courseId");
-
-            entity.HasIndex(e => e.UserId, "userId");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CourseId).HasColumnName("courseId");
-            entity.Property(e => e.EnrollmentDate)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime")
-                .HasColumnName("enrollmentDate");
-            entity.Property(e => e.IsRequired)
-                .HasDefaultValueSql("'0'")
-                .HasColumnName("isRequired");
-            entity.Property(e => e.RequiredDate)
-                .HasColumnType("datetime")
-                .HasColumnName("requiredDate");
-            entity.Property(e => e.UserId).HasColumnName("userId");
-
-            entity.HasOne(d => d.Course).WithMany(p => p.Enrollments)
-                .HasForeignKey(d => d.CourseId)
-                .HasConstraintName("enrollments_ibfk_2");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Enrollments)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("enrollments_ibfk_1");
-        });
-
-        modelBuilder.Entity<FileStepEntity>(entity =>
-        {
-            entity.HasKey(e => new { e.Id, e.StepId }).HasName("PRIMARY");
-
-            entity.ToTable("filesteps");
-
-            entity.HasIndex(e => e.StepId, "stepId");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("id");
-            entity.Property(e => e.StepId).HasColumnName("stepId");
-            entity.Property(e => e.Data)
-                .HasColumnType("blob")
-                .HasColumnName("data");
-
-            entity.HasOne(d => d.Step).WithMany(p => p.Filesteps)
-                .HasForeignKey(d => d.StepId)
-                .HasConstraintName("filesteps_ibfk_1");
-        });
-
         modelBuilder.Entity<InstitutionEntity>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
-
+        
             entity.ToTable("institutions");
-
+        
             entity.HasIndex(e => e.Email, "email_UNIQUE").IsUnique();
-
+        
             entity.HasIndex(e => e.Name, "name_UNIQUE").IsUnique();
-
+        
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
@@ -188,8 +36,12 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                 .HasMaxLength(150)
                 .HasColumnName("name");
             entity.Property(e => e.Telephone)
-                .HasMaxLength(45)
+                .HasMaxLength(1)
                 .HasColumnName("telephone");
+            entity.Property(e => e.Document)
+                .HasMaxLength(1)
+                .HasColumnName("document");
+
         });
 
         modelBuilder.Entity<InstitutionPasswordHashEntity>(entity =>
@@ -211,109 +63,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                 .HasMaxLength(200)
                 .HasColumnName("salt");
 
-            entity.HasOne(d => d.Institution).WithOne(p => p.InstitutionPasswordHash)
-                .HasConstraintName("institutionpasswordhashes_ibfk_1");
-        });
-
-        modelBuilder.Entity<OptionEntity>(entity =>
-        {
-            entity.HasKey(e => new { e.Id, e.QuestionId }).HasName("PRIMARY");
-
-            entity.ToTable("options");
-
-            entity.HasIndex(e => e.QuestionId, "questionId");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("id");
-            entity.Property(e => e.QuestionId).HasColumnName("questionId");
-            entity.Property(e => e.IsCorrect)
-                .HasDefaultValueSql("'0'")
-                .HasColumnName("isCorrect");
-            entity.Property(e => e.Text)
-                .HasColumnType("text")
-                .HasColumnName("text");
-        });
-
-        modelBuilder.Entity<QuestionEntity>(entity =>
-        {
-            entity.HasKey(e => new { e.Id, e.ActivityId }).HasName("PRIMARY");
-
-            entity.ToTable("questions");
-
-            entity.HasIndex(e => e.ActivityId, "activityId");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("id");
-            entity.Property(e => e.ActivityId).HasColumnName("activityId");
-            entity.Property(e => e.Statement)
-                .HasColumnType("text")
-                .HasColumnName("statement");
-        });
-
-        modelBuilder.Entity<StepEntity>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("steps");
-
-            entity.HasIndex(e => e.CourseId, "courseId");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CourseId).HasColumnName("courseId");
-            entity.Property(e => e.Description)
-                .HasMaxLength(45)
-                .HasColumnName("description");
-            entity.Property(e => e.Order).HasColumnName("order");
-            entity.Property(e => e.Type).HasColumnName("type");
-
-            entity.HasOne(d => d.Course).WithMany(p => p.Steps)
-                .HasForeignKey(d => d.CourseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("steps_ibfk_1");
-        });
-
-        modelBuilder.Entity<StyleVariableEntity>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("stylevariables");
-
-            entity.HasIndex(e => e.Name, "name_UNIQUE").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.DefaultValue)
-                .HasMaxLength(45)
-                .HasColumnName("defaultValue");
-            entity.Property(e => e.Name)
-                .HasMaxLength(45)
-                .HasColumnName("name");
-        });
-
-        modelBuilder.Entity<StyleVariablesValueEntity>(entity =>
-        {
-            entity.HasKey(e => new { e.StyleId, e.VariableId }).HasName("PRIMARY");
-
-            entity.ToTable("stylevariablesvalues");
-
-            entity.HasIndex(e => e.VariableId, "variable_id");
-
-            entity.Property(e => e.StyleId).HasColumnName("style_id");
-            entity.Property(e => e.VariableId).HasColumnName("variable_id");
-            entity.Property(e => e.Value)
-                .HasMaxLength(45)
-                .HasColumnName("value");
-
-            entity.HasOne(d => d.Style).WithMany(p => p.Stylevariablesvalues)
-                .HasForeignKey(d => d.StyleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("stylevariablesvalues_ibfk_1");
-
-            entity.HasOne(d => d.Variable).WithMany(p => p.Stylevariablesvalues)
-                .HasForeignKey(d => d.VariableId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("stylevariablesvalues_ibfk_2");
+            entity.HasOne(d => d.Institution).WithOne(p => p.InstitutionPasswordHash);
         });
 
         modelBuilder.Entity<UserEntity>(entity =>
@@ -359,68 +109,16 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                 .UsingEntity<Dictionary<string, object>>(
                     "Association",
                     r => r.HasOne<InstitutionEntity>().WithMany()
-                        .HasForeignKey("InstitutionId")
-                        .HasConstraintName("fk_Users_has_Institutions_Institutions1"),
+                        .HasForeignKey("InstitutionId"),
                     l => l.HasOne<UserEntity>().WithMany()
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("fk_Users_has_Institutions_Users1"),
+                        .HasForeignKey("UserId"),
                     j =>
                     {
                         j.HasKey("UserId", "InstitutionId").HasName("PRIMARY");
                         j.ToTable("associations");
-                        j.HasIndex(new[] { "InstitutionId" }, "fk_Users_has_Institutions_Institutions1");
                         j.IndexerProperty<int>("UserId").HasColumnName("userId");
                         j.IndexerProperty<int>("InstitutionId").HasColumnName("institutionId");
                     });
-        });
-
-
-        modelBuilder.Entity<UserCardEntity>(entity =>
-        {
-            entity.HasKey(e => new { e.UserId, e.CardId }).HasName("PRIMARY");
-
-            entity.ToTable("usercards");
-
-            entity.HasIndex(e => e.CardId, "card_id");
-
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.CardId).HasColumnName("card_id");
-            entity.Property(e => e.AcquirementDate)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime")
-                .HasColumnName("acquirement_date");
-
-            entity.HasOne(d => d.Card).WithMany(p => p.UserCards)
-                .HasForeignKey(d => d.CardId)
-                .HasConstraintName("usercards_ibfk_2");
-
-            entity.HasOne(d => d.User).WithMany(p => p.UserCards)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("usercards_ibfk_1");
-        });
-
-        modelBuilder.Entity<UserNotificationEntity>(entity =>
-        {
-            entity.HasKey(e => new { e.Id, e.UserId }).HasName("PRIMARY");
-
-            entity.ToTable("usernotifications");
-
-            entity.HasIndex(e => e.UserId, "user_id");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.NotificationDate)
-                .HasMaxLength(45)
-                .HasColumnName("notification_date");
-            entity.Property(e => e.Text)
-                .HasMaxLength(250)
-                .HasColumnName("text");
-
-            entity.HasOne(d => d.User).WithMany(p => p.UserNotifications)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("usernotifications_ibfk_1");
         });
         
         modelBuilder.Entity<UserPasswordHashEntity>(entity =>
@@ -440,8 +138,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                 .HasColumnName("salt");
             entity.Property(e => e.UserId).HasColumnName("userId");
 
-            entity.HasOne(d => d.User).WithOne(p => p.UserPasswordHash)
-                .HasConstraintName("userpasswordhashes_ibfk_1");
+            entity.HasOne(d => d.User).WithOne(p => p.UserPasswordHash);
         });
 
         modelBuilder.Entity<UserPreferenceEntity>(entity =>
@@ -456,7 +153,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                 .HasColumnName("defaultValue");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
-                .HasColumnName("preferenceName");
+                .HasColumnName("name");
         });
 
         modelBuilder.Entity<UserPreferencesValueEntity>(entity =>
@@ -474,70 +171,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                 .HasColumnName("value");
             
             entity.HasOne(d => d.User).WithMany(p => p.UserPreferencesValues)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("userpreferencesvalues_ibfk_1");
-        });
-
-        modelBuilder.Entity<UserProgressEntity>(entity =>
-        {
-            entity.HasKey(e => new { e.EnrollmentId, e.StepId }).HasName("PRIMARY");
-
-            entity.ToTable("userprogress");
-
-            entity.HasIndex(e => e.StepId, "stepId");
-
-            entity.Property(e => e.EnrollmentId).HasColumnName("enrollment_id");
-            entity.Property(e => e.StepId).HasColumnName("stepId");
-            entity.Property(e => e.ProgressDate)
-                .HasColumnType("datetime")
-                .HasColumnName("progressDate");
-
-            entity.HasOne(d => d.Enrollment).WithMany(p => p.UserProgresses)
-                .HasForeignKey(d => d.EnrollmentId)
-                .HasConstraintName("userprogress_ibfk_2");
-
-            entity.HasOne(d => d.Step).WithMany(p => p.Userprogresses)
-                .HasForeignKey(d => d.StepId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("userprogress_ibfk_1");
-        });
-
-        modelBuilder.Entity<UserScoreEntity>(entity =>
-        {
-            entity.HasKey(e => e.UserId).HasName("PRIMARY");
-
-            entity.ToTable("userscores");
-
-            entity.Property(e => e.UserId).HasColumnName("userId");
-            entity.Property(e => e.Score)
-                .HasDefaultValueSql("'0'")
-                .HasColumnName("score");
-
-            entity.HasOne(d => d.User).WithOne(p => p.UserScore)
-                .HasForeignKey<UserScoreEntity>(d => d.UserId)
-                .HasConstraintName("userscores_ibfk_1");
-        });
-
-        modelBuilder.Entity<VideoStepEntity>(entity =>
-        {
-            entity.HasKey(e => new { e.Id, e.StepId }).HasName("PRIMARY");
-
-            entity.ToTable("videosteps");
-
-            entity.HasIndex(e => e.StepId, "stepId");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("id");
-            entity.Property(e => e.StepId).HasColumnName("stepId");
-            entity.Property(e => e.Url)
-                .HasMaxLength(250)
-                .HasColumnName("url");
-
-            entity.HasOne(d => d.Step).WithMany(p => p.Videosteps)
-                .HasForeignKey(d => d.StepId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("videosteps_ibfk_1");
+                .HasForeignKey(d => d.UserId);
         });
     }
 }

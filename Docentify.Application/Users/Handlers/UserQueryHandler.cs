@@ -12,7 +12,7 @@ namespace Docentify.Application.Users.Handlers;
 
 public class UserQueryHandler(DatabaseContext context, IConfiguration configuration)
 {
-    public async Task<UserViewModel> GetUserAsync(GetUserQuery query, HttpRequest request,  CancellationToken cancellationToken)
+    public async Task<UserViewModel> GetUserByIdAsync(GetUserQuery query, HttpRequest request,  CancellationToken cancellationToken)
     {
         var user = await context.Users.AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == query.UserId, cancellationToken);

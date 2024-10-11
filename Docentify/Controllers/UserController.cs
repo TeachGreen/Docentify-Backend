@@ -15,11 +15,11 @@ public class UserController(
 {
     [Authorize(Roles = "Users,Institutions")]
     [HttpGet("{userId:int}")]
-    public async Task<IActionResult> GetUser([FromRoute] int userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetUserById([FromRoute] int userId, CancellationToken cancellationToken)
     {
         var query = new GetUserQuery { UserId = userId };
         
-        var result = await queryHandler.GetUserAsync(query, Request, cancellationToken);
+        var result = await queryHandler.GetUserByIdAsync(query, Request, cancellationToken);
         return Ok(result);
     }
     
