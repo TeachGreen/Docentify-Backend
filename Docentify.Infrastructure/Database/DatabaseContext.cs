@@ -1,3 +1,4 @@
+using Docentify.Domain.Entities.Courses;
 using Docentify.Domain.Entities.User;
 
 namespace Docentify.Infrastructure.Database;
@@ -15,6 +16,12 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     public DbSet<UserPreferenceEntity> UserPreferences { get; set; }
 
     public DbSet<UserPreferencesValueEntity> UserPreferencesValues { get; set; }
+    
+    public DbSet<CourseEntity> Courses { get; set; }
+    
+    public DbSet<EnrollmentEntity> Enrollments { get; set; }
+    
+    public DbSet<FavoriteEntity> Favorites { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -172,6 +179,54 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             
             entity.HasOne(d => d.User).WithMany(p => p.UserPreferencesValues)
                 .HasForeignKey(d => d.UserId);
+        });
+        
+        modelBuilder.Entity<CourseEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.Property(e => e.CreationDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.UpdateDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.Institution).WithMany(p => p.Courses);
+        });
+        
+        modelBuilder.Entity<EnrollmentEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.Property(e => e.EnrollmentDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.Enrollments);
+
+            entity.HasOne(d => d.User).WithMany(p => p.Enrollments);
+        });
+        
+        modelBuilder.Entity<FavoriteEntity>(entity =>
+        {
+            entity.HasKey(e => new { e.CourseId, e.UserId }).HasName("PRIMARY");
+
+            entity.Property(e => e.FavoriteDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.Favorites);
+
+            entity.HasOne(d => d.User).WithMany(p => p.Favorites);
+        });
+
+        modelBuilder.Entity<StepEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.HasOne(d => d.Course).WithMany(p => p.Steps);
+        });
+        
+        modelBuilder.Entity<UserProgressEntity>(entity =>
+        {
+            entity.HasKey(e => new { e.EnrollmentId, e.StepId }).HasName("PRIMARY");
+
+            entity.HasOne(d => d.Enrollment).WithMany(p => p.UserProgresses).HasConstraintName("userprogress_ibfk_2");
+
+            entity.HasOne(d => d.Step).WithMany(p => p.UserProgresses).HasConstraintName("userprogress_ibfk_1");
         });
     }
 }

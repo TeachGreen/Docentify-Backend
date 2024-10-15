@@ -55,8 +55,10 @@ CREATE TABLE IF NOT EXISTS Courses
     name          VARCHAR(45) NOT NULL,
     description   TEXT        NULL,
     institutionId INT         NOT NULL,
-    creation_date DATETIME    NULL DEFAULT CURRENT_TIMESTAMP,
-    update_date   DATETIME    NULL DEFAULT CURRENT_TIMESTAMP,
+    isRequired    BIT  NULL DEFAULT 0,
+    requiredTimeLimit INT    NULL DEFAULT 30,
+    creationDate DATETIME    NULL DEFAULT CURRENT_TIMESTAMP,
+    updateDate   DATETIME    NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     FOREIGN KEY (institutionId) REFERENCES Institutions (id)
         ON DELETE CASCADE
@@ -80,8 +82,7 @@ CREATE TABLE IF NOT EXISTS Enrollments
 (
     id             INT      NOT NULL AUTO_INCREMENT,
     enrollmentDate DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-    isRequired     TINYINT  NULL DEFAULT 0,
-    requiredDate   DATETIME NULL,
+    isActive       BIT      NULL DEFAULT 1,
     userId         INT      NOT NULL,
     courseId       INT      NOT NULL,
     PRIMARY KEY (id),
@@ -173,7 +174,6 @@ CREATE TABLE IF NOT EXISTS FileSteps
 );
 
 DROP TABLE IF EXISTS UserScores;
-
 CREATE TABLE IF NOT EXISTS UserScores
 (
     userId INT NOT NULL,
@@ -189,10 +189,10 @@ CREATE TABLE IF NOT EXISTS CourseStyles
     id       INT         NOT NULL AUTO_INCREMENT,
     name     VARCHAR(45) NULL,
     courseId INT         NOT NULL,
+    isRequired TINYINT  NULL DEFAULT 0,
     PRIMARY KEY (id),
-    CONSTRAINT fk_CourseStyles_Courses1
-        FOREIGN KEY (courseId) REFERENCES Courses (id)
-            ON DELETE CASCADE
+    FOREIGN KEY (courseId) REFERENCES Courses (id)
+        ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS UserPreferences;
@@ -211,12 +211,10 @@ CREATE TABLE IF NOT EXISTS UserPreferencesValues
     preferenceId INT         NOT NULL,
     value        VARCHAR(45) NOT NULL,
     PRIMARY KEY (userId, preferenceId),
-    CONSTRAINT fk_Users_has_UserPreferences_Users1
-        FOREIGN KEY (userId) REFERENCES Users (id)
-            ON DELETE CASCADE,
-    CONSTRAINT fk_UserPreferencesValues_UserPreferences1
-        FOREIGN KEY (preferenceId) REFERENCES UserPreferences (id)
-            ON DELETE CASCADE
+    FOREIGN KEY (userId) REFERENCES Users (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (preferenceId) REFERENCES UserPreferences (id)
+        ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS Associations;
@@ -225,12 +223,10 @@ CREATE TABLE IF NOT EXISTS Associations
     userId        INT NOT NULL,
     institutionId INT NOT NULL,
     PRIMARY KEY (userId, institutionId),
-    CONSTRAINT fk_Users_has_Institutions_Users1
-        FOREIGN KEY (userId) REFERENCES Users (id)
-            ON DELETE CASCADE,
-    CONSTRAINT fk_Users_has_Institutions_Institutions1
-        FOREIGN KEY (institutionId) REFERENCES Institutions (id)
-            ON DELETE CASCADE
+    FOREIGN KEY (userId) REFERENCES Users (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (institutionId) REFERENCES Institutions (id)
+        ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS StyleVariables;
@@ -250,12 +246,10 @@ CREATE TABLE IF NOT EXISTS StyleVariablesValues
     variable_id INT         NOT NULL,
     value       VARCHAR(45) NOT NULL,
     PRIMARY KEY (style_id, variable_id),
-    CONSTRAINT fk_CourseStyles_has_StyleVariables_CourseStyles1
-        FOREIGN KEY (style_id) REFERENCES CourseStyles (id)
-            ON DELETE CASCADE,
-    CONSTRAINT fk_CourseStyles_has_StyleVariables_StyleVariables1
-        FOREIGN KEY (variable_id) REFERENCES StyleVariables (id)
-            ON DELETE CASCADE
+    FOREIGN KEY (style_id) REFERENCES CourseStyles (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (variable_id) REFERENCES StyleVariables (id)
+        ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS InstitutionPasswordHashes;
@@ -338,31 +332,31 @@ VALUES
 -- Inserir instituições
 INSERT INTO Institutions (name, email, telephone, document, address)
 VALUES
-    ('Universidade Federal', 'contato@ufederal.edu.br', '1134567890', '123', 'Rua tal'),
+    ('Universidade Federal', 'contato@ufederal.edu.br', '1134567890', '231', 'Rua tal'),
     ('Instituto de Educação Superior', 'contato@iesup.com.br', '1187654321', '123', 'Rua tal'),
-    ('Faculdade Privada', 'contato@facprivada.com.br', '1143216789', '123', 'Rua tal');
+    ('Faculdade Privada', 'contato@facprivada.com.br', '1143216789', '321', 'Rua tal');
 
 -- Inserir cursos
-INSERT INTO Courses (name, description, institutionId)
+INSERT INTO Courses (name, description, isRequired, requiredTimeLimit, institutionId)
 VALUES
-    ('Curso de Pedagogia', 'Capacitação em metodologias educacionais modernas', 1),
-    ('Tecnologias Educacionais', 'Curso focado no uso de tecnologia em sala de aula', 1),
-    ('Capacitação em Metodologias Ativas', 'Uso de metodologias ativas no ensino superior', 2),
-    ('Inovação na Educação', 'Ferramentas inovadoras para o ensino superior', 3);
+    ('Curso de Pedagogia', 'Capacitação em metodologias educacionais modernas', 0, 0,  1),
+    ('Tecnologias Educacionais', 'Curso focado no uso de tecnologia em sala de aula', 0, 0, 1),
+    ('Capacitação em Metodologias Ativas', 'Uso de metodologias ativas no ensino superior', 1, 30, 2),
+    ('Inovação na Educação', 'Ferramentas inovadoras para o ensino superior', 1, 60, 3);
 
 -- Inserir matrículas de usuários em cursos
-INSERT INTO Enrollments (enrollmentDate, isRequired, requiredDate, userId, courseId)
+INSERT INTO Enrollments (enrollmentDate, userId, courseId)
 VALUES
-    ('2024-09-01', 1, '2024-10-01', 1, 1),
-    ('2024-09-01', 1, '2024-10-15', 2, 2),
-    ('2024-08-20', 0, NULL, 3, 3),
-    ('2024-09-10', 1, '2024-09-30', 4, 4),
-    ('2024-09-05', 1, '2024-10-10', 5, 1),
-    ('2024-09-02', 1, '2024-09-20', 6, 2),
-    ('2024-08-25', 0, NULL, 7, 3),
-    ('2024-09-08', 1, '2024-10-15', 8, 4),
-    ('2024-09-03', 1, '2024-09-25', 9, 1),
-    ('2024-09-07', 1, '2024-09-30', 10, 2);
+    ('2024-09-01', 1, 1),
+    ('2024-09-01', 2, 2),
+    ('2024-08-20', 3, 3),
+    ('2024-09-10', 4, 4),
+    ('2024-09-05', 5, 1),
+    ('2024-09-02', 6, 2),
+    ('2024-08-25', 7, 3),
+    ('2024-09-08', 8, 4),
+    ('2024-09-03', 9, 1),
+    ('2024-09-07', 10, 2);
 
 -- Inserir pontuações de usuários
 INSERT INTO UserScores (userId, score)

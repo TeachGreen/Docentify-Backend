@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Docentify.Domain.Entities.Courses;
 using Microsoft.EntityFrameworkCore;
 
 namespace Docentify.Domain.Entities.User;
@@ -41,11 +42,11 @@ public class UserEntity
     [Column("update_date", TypeName = "datetime")]
     public DateTime? UpdateDate { get; set; }
 
-    // [InverseProperty("User")]
-    // public virtual ICollection<EnrollmentEntity> Enrollments { get; set; } = new List<EnrollmentEntity>();
+    [InverseProperty("User")]
+    public virtual ICollection<EnrollmentEntity> Enrollments { get; set; } = new List<EnrollmentEntity>();
 
-    // [InverseProperty("User")]
-    // public virtual ICollection<Favoritedcourse> Favoritedcourses { get; set; } = new List<Favoritedcourse>();
+    [InverseProperty("User")]
+    public virtual ICollection<FavoriteEntity> Favorites { get; set; } = new List<FavoriteEntity>();
     //
     // [InverseProperty("User")]
     // public virtual ICollection<Usercard> Usercards { get; set; } = new List<Usercard>();

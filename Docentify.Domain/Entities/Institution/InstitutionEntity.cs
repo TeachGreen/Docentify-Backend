@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Docentify.Domain.Entities.Courses;
 using Docentify.Domain.Entities.User;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,8 +35,8 @@ public class InstitutionEntity
     [StringLength(350)]
     public string? Address { get; set; }
 
-    // [InverseProperty("Institution")]
-    // public virtual ICollection<CourseEntity> Courses { get; set; } = new List<CourseEntity>();
+    [InverseProperty("Institution")]
+    public virtual ICollection<CourseEntity> Courses { get; set; } = new List<CourseEntity>();
 
     [InverseProperty("Institution")]
     public virtual InstitutionPasswordHashEntity? InstitutionPasswordHash { get; set; }
