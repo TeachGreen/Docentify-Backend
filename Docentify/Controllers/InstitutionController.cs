@@ -25,7 +25,7 @@ public class InstitutionController(
     }
     
     [Authorize(Roles = "Users,Institutions")]
-    [HttpGet("Users/{institutionId:int}")]
+    [HttpGet("{institutionId:int}/Users")]
     public async Task<IActionResult> GetInstitutionUsers([FromRoute] int institutionId, [FromQuery] GetInstitutionUsersQuery query, CancellationToken cancellationToken)
     {
         query.SetInstitutionId(institutionId);

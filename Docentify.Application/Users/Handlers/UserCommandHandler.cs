@@ -1,3 +1,4 @@
+using AutoMapper;
 using Docentify.Application.Users.Commands;
 using Docentify.Application.Users.ValueObject;
 using Docentify.Application.Users.ViewModels;
@@ -17,7 +18,7 @@ public class UserCommandHandler(DatabaseContext context, IConfiguration configur
     public async Task<UserViewModel> UpdateUserAsync(UpdateUserCommand command, HttpRequest request, CancellationToken cancellationToken)
     {
         var jwtData = JwtUtils.GetJwtDataFromRequest(request);
-        var user = await context.Users.AsNoTracking()
+        var user = await context.Users
             .Include(u => u.UserPreferencesValues)
             .ThenInclude(upv => upv.Preference)
             .FirstOrDefaultAsync(u => u.Email == jwtData["email"], cancellationToken);
@@ -26,26 +27,13 @@ public class UserCommandHandler(DatabaseContext context, IConfiguration configur
         {
             throw new NotFoundException("No user with the provided authentication was found");
         }
-        
-        if (command.Name is not null)
-            user.Name = command.Name;
-        
-        if (command.BirthDate != default)
-            user.BirthDate = command.BirthDate;
-        
-        if (command.Email is not null)
-            user.Email = command.Email;
-        
-        if (command.Telephone is not null)
-            user.Telephone = command.Telephone;
-        
-        if (command.Document is not null)
-            user.Document = command.Document;
 
-        if (command.Gender is not null)
-            user.Gender = command.Gender;
-
-        context.Users.Update(user);
+        var mapper = new MapperConfiguration(cfg => 
+                cfg.CreateMap<UpdateUserCommand, UserEntity>()
+                    .ForAllMembers(opts => 
+                        opts.Condition((src, dest, srcMember) => srcMember != null))
+            ).CreateMapper();
+        mapper.Map(command, user);
         
         await context.SaveChangesAsync(cancellationToken);
         return new UserViewModel
@@ -62,7 +50,7 @@ public class UserCommandHandler(DatabaseContext context, IConfiguration configur
     public async Task<UserPreferencesViewModel> UpdateUserPreferencesAsync(UpdateUserPreferencesCommand command, HttpRequest request, CancellationToken cancellationToken)
     {
         var jwtData = JwtUtils.GetJwtDataFromRequest(request);
-        var user = await context.Users.AsNoTracking()
+        var user = await context.Users
             .Include(u => u.UserPreferencesValues)
             .ThenInclude(upv => upv.Preference)
             .FirstOrDefaultAsync(u => u.Email == jwtData["email"], cancellationToken);
@@ -72,47 +60,31 @@ public class UserCommandHandler(DatabaseContext context, IConfiguration configur
             throw new NotFoundException("No user with the provided authentication was found");
         }
         
-        var setUserPreferences = user.UserPreferencesValues
-            .ToDictionary(p => p.Preference.Name, p => p.Value);
+        var changedPreferences = command.Preferences
+            .ToDictionary(p => p.Name, p => p);
+        foreach (var userPreference in user.UserPreferencesValues
+            .Where(upv => changedPreferences.Keys.Contains(upv.Preference.Name)))
+        {
+            userPreference.Value = changedPreferences[userPreference.Preference.Name].Value;
+        }
+        
         var defaultPreferences = await context.UserPreferences.AsNoTracking()
             .ToDictionaryAsync(p => p.Name, p => p, cancellationToken);
-        
-        var updatedPreferences = new List<UserPreferencesValueEntity>();
-        var newPreferences = new List<UserPreferencesValueEntity>();
-        foreach (var preference in command.Preferences)
+        foreach (var userPreference in changedPreferences.Keys
+            .Where(name => user.UserPreferencesValues.All(upv => upv.Preference.Name != name)))
         {
-            if (!defaultPreferences.ContainsKey(preference.Name))
-                throw new NotFoundException($"No preference with the name '{preference.Name}' was found");
-            
-            if (setUserPreferences.ContainsKey(preference.Name))
-            {
-                updatedPreferences.Add(new UserPreferencesValueEntity
+            user.UserPreferencesValues.Add(new UserPreferencesValueEntity
                 {
-                    Preference = defaultPreferences[preference.Name],
-                    UserId = user.Id, 
-                    PreferenceId = defaultPreferences[preference.Name].Id, 
-                    Value = preference.Value
-                });
-            }
-            else
-            {
-                newPreferences.Add(new UserPreferencesValueEntity
-                {
-                    Preference = defaultPreferences[preference.Name],
-                    UserId = user.Id, 
-                    PreferenceId = defaultPreferences[preference.Name].Id, 
-                    Value = preference.Value
-                });
-            }
+                    Preference = defaultPreferences[userPreference],
+                    User = user,
+                    Value = changedPreferences[userPreference].Value
+                }
+            );
         }
-
-        context.UserPreferencesValues.UpdateRange(updatedPreferences);
-        await context.UserPreferencesValues.AddRangeAsync(newPreferences, cancellationToken);
         
         await context.SaveChangesAsync(cancellationToken);
         
-        var result = updatedPreferences.Concat(newPreferences).Select(p => new PreferenceValueObject { Name = p.Preference.Name, Value = p.Value }).ToList();
-            
+        var result = user.UserPreferencesValues.Select(p => new PreferenceValueObject { Name = p.Preference.Name, Value = p.Value }).ToList();
         return new UserPreferencesViewModel
         {
             Preferences = result
