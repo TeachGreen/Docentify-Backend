@@ -111,6 +111,7 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
         var jwtData = JwtUtils.GetJwtDataFromRequest(request);
         var user = await context.Users
             .Include(u => u.Favorites)
+            .Include(u => u.Institutions)
             .FirstOrDefaultAsync(u => u.Email == jwtData["email"], cancellationToken);
         if (user is null)
         {
@@ -119,10 +120,16 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
 
         var course = await context.Courses
             .AsNoTracking()
+            .Include(c => c.Institution)
             .FirstOrDefaultAsync(c => c.Id == command.CourseId, cancellationToken);
         if (course is null)
         {
             throw new NotFoundException("No course with the provided id was found");
+        }
+        
+        if (course.Institution is not null && user.Institutions.All(i => i.Id != course.Institution.Id))
+        {
+            throw new ForbiddenException("User is not allowed to favorite to course from non-associated institution");
         }
         
         if (user.Favorites.FirstOrDefault(c => c.CourseId == course.Id) is null)
@@ -146,6 +153,7 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
         var jwtData = JwtUtils.GetJwtDataFromRequest(request);
         var user = await context.Users
             .Include(u => u.Enrollments)
+            .Include(u => u.Institutions)
             .FirstOrDefaultAsync(u => u.Email == jwtData["email"], cancellationToken);
         if (user is null)
         {
@@ -153,10 +161,16 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
         }
 
         var course = await context.Courses
+            .Include(c => c.Institution)
             .FirstOrDefaultAsync(c => c.Id == command.CourseId, cancellationToken);
         if (course is null)
         {
             throw new NotFoundException("No course with the provided id was found");
+        }
+        
+        if (course.Institution is not null && user.Institutions.All(i => i.Id != course.Institution.Id))
+        {
+            throw new ForbiddenException("User is not allowed to enroll to course from non-associated institution");
         }
         
         var courseEnrollment = user.Enrollments.FirstOrDefault(c => c.CourseId == course.Id);
