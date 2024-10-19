@@ -2,6 +2,7 @@
 using Docentify.Application.Authentication.Validators;
 using Docentify.Application.Courses.Handlers;
 using Docentify.Application.Institutions.Handlers;
+using Docentify.Application.Steps.Handlers;
 using Docentify.Application.Users.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,11 +22,13 @@ public static class ApplicationModule
         services.AddScoped<AuthenticationCommandHandler>();
         services.AddScoped<CourseCommandHandler>();
         services.AddScoped<InstitutionCommandHandler>();
+        services.AddScoped<StepCommandHandler>();
         services.AddScoped<UserCommandHandler>();
         
         services.AddScoped<AuthenticationQueryHandler>();
         services.AddScoped<CourseQueryHandler>();
         services.AddScoped<InstitutionQueryHandler>();
+        services.AddScoped<StepQueryHandler>();
         services.AddScoped<UserQueryHandler>();
         
         return services;

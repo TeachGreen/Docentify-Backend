@@ -1,5 +1,3 @@
-using Docentify.Application.Common.Queries;
-
 namespace Docentify.Application.Courses.Queries;
 
 public class GetCourseByIdQuery

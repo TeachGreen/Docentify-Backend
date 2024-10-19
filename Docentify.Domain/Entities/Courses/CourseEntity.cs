@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Docentify.Domain.Entities.Step;
 using Microsoft.EntityFrameworkCore;
 
 namespace Docentify.Domain.Entities.Courses;

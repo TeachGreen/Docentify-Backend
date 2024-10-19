@@ -1,7 +1,6 @@
 using Docentify.Application.Institutions.Commands;
 using Docentify.Application.Institutions.Handlers;
 using Docentify.Application.Institutions.Queries;
-using Docentify.Application.Users.Commands;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -3,7 +3,6 @@ using Docentify.Application.Users.Commands;
 using Docentify.Application.Users.ValueObject;
 using Docentify.Application.Users.ViewModels;
 using Docentify.Application.Utils;
-using Docentify.Domain.Entities;
 using Docentify.Domain.Entities.User;
 using Docentify.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;

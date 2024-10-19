@@ -1,4 +1,5 @@
 using Docentify.Domain.Entities.Courses;
+using Docentify.Domain.Entities.Step;
 using Docentify.Domain.Entities.User;
 
 namespace Docentify.Infrastructure.Database;
@@ -19,9 +20,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     
     public DbSet<CourseEntity> Courses { get; set; }
     
-    public DbSet<EnrollmentEntity> Enrollments { get; set; }
-    
-    public DbSet<FavoriteEntity> Favorites { get; set; }
+    public DbSet<StepEntity> Steps { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

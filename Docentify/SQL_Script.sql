@@ -95,24 +95,15 @@ CREATE TABLE IF NOT EXISTS Enrollments
 DROP TABLE IF EXISTS Steps;
 CREATE TABLE IF NOT EXISTS Steps
 (
-    id          INT         NOT NULL AUTO_INCREMENT,
-    `order`       INT         NOT NULL,
-    description VARCHAR(45) NOT NULL,
-    type        INT         NOT NULL,
-    courseId    INT         NOT NULL,
+    id          INT          NOT NULL AUTO_INCREMENT,
+    `order`       INT        NOT NULL,
+    title       VARCHAR(45)  NOT NULL,
+    description VARCHAR(500) NOT NULL,
+    type        INT          NOT NULL,
+    content     TEXT         NOT NULL,
+    courseId    INT          NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (courseId) REFERENCES Courses (id)
-        ON DELETE CASCADE
-);
-
-DROP TABLE IF EXISTS VideoSteps;
-CREATE TABLE IF NOT EXISTS VideoSteps
-(
-    id     INT          NOT NULL AUTO_INCREMENT,
-    url    VARCHAR(250) NOT NULL,
-    stepId INT          NOT NULL,
-    PRIMARY KEY (id, stepId),
-    FOREIGN KEY (stepId) REFERENCES Steps (id)
         ON DELETE CASCADE
 );
 
@@ -120,6 +111,7 @@ DROP TABLE IF EXISTS Activities;
 CREATE TABLE IF NOT EXISTS Activities
 (
     id     INT NOT NULL AUTO_INCREMENT,
+    allowedTries INT NOT NULL DEFAULT 3,
     stepId INT NOT NULL,
     PRIMARY KEY (id, stepId),
     FOREIGN KEY (stepId) REFERENCES Steps (id)
@@ -380,13 +372,13 @@ VALUES
     ('Lembrar login', 'Desativado');
 
 -- Inserir etapas dos cursos
-INSERT INTO Steps (`order`, description, type, courseId)
+INSERT INTO Steps (`order`, title, description, type, courseId, content)
 VALUES
-    (1, 'Introdução ao curso', 1, 1),
-    (2, 'Módulo 1: Ferramentas Tecnológicas', 2, 1),
-    (1, 'Aula inicial', 1, 2),
-    (2, 'Módulo 1: Metodologias Ativas', 2, 3),
-    (1, 'Aula inaugural', 1, 4);
+    (1, 'Introdução ao curso', 'Introdução', 1, 1, 'texto'),
+    (2, 'Módulo 1: Ferramentas Tecnológicas', 'Módulo 1: Ferramentas Tecnológicas', 2, 1, 'url video'),
+    (1, 'Aula inicial', 'Aula inicial', 1, 2, 'texto'),
+    (2, 'Módulo 1: Metodologias Ativas', 'Módulo 1: Metodologias Ativas', 3, 3, 'explicação antes da atividade'),
+    (1, 'Aula inaugural', 'Aula inaugural', 1, 4, 'texto');
 
 -- Inserir progresso dos usuários nos cursos
 INSERT INTO UserProgress (enrollment_id, stepId, progressDate)

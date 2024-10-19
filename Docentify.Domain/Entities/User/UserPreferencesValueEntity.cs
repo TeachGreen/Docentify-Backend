@@ -6,7 +6,7 @@ namespace Docentify.Domain.Entities.User;
 [PrimaryKey("UserId", "PreferenceId")]
 [Table("userpreferencesvalues")]
 [Index("PreferenceId", Name = "fk_UserPreferencesValues_UserPreferences1")]
-public partial class UserPreferencesValueEntity
+public class UserPreferencesValueEntity
 {
     [Key]
     [Column("userId")]

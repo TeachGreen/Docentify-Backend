@@ -154,6 +154,7 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             Steps = course.Steps.Select(s => new StepValueObject
             {
                 Id = s.Id,
+                Title = s.Title,
                 Description = s.Description,
                 Order = s.Order,
                 Type = s.Type
