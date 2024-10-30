@@ -1,5 +1,3 @@
-using Docentify.Domain.Enums;
-
 namespace Docentify.Application.Steps.Commands;
 
 public class UpdateStepCommand

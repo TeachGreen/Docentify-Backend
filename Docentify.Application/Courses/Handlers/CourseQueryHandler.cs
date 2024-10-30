@@ -133,7 +133,7 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             };
     }
     
-    public async Task<CourseViewModelWithSteps> GetCourseByIdWithStepsAsync(GetCourseByIdQuery query, HttpRequest request,  CancellationToken cancellationToken)
+    public async Task<CourseWithStepsViewModel> GetCourseByIdWithStepsAsync(GetCourseByIdQuery query, HttpRequest request,  CancellationToken cancellationToken)
     {
         var course = await context.Courses.AsNoTracking()
             .Where(c => c.Id == query.CourseId)
@@ -145,7 +145,7 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             throw new NotFoundException("No course with the provided id was found");
         }
         
-        return new CourseViewModelWithSteps
+        return new CourseWithStepsViewModel
         {
             Id = course.Id,
             Name = course.Name,

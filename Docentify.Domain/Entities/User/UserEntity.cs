@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Docentify.Domain.Entities.Courses;
+using Docentify.Domain.Entities.Step;
 using Microsoft.EntityFrameworkCore;
 
 namespace Docentify.Domain.Entities.User;
@@ -36,10 +37,10 @@ public class UserEntity
     [StringLength(45)]
     public string Document { get; set; } = null!;
 
-    [Column("creation_date", TypeName = "datetime")]
+    [Column("creationDate", TypeName = "datetime")]
     public DateTime? CreationDate { get; set; }
 
-    [Column("update_date", TypeName = "datetime")]
+    [Column("updateDate", TypeName = "datetime")]
     public DateTime? UpdateDate { get; set; }
 
     [InverseProperty("User")]
@@ -63,7 +64,9 @@ public class UserEntity
     // [InverseProperty("User")]
     // public virtual Userscore? Userscore { get; set; }
     //
-    [ForeignKey("UserId")]
     [InverseProperty("Users")]
     public virtual ICollection<InstitutionEntity> Institutions { get; set; } = new List<InstitutionEntity>();
+    
+    [InverseProperty("User")]
+    public virtual ICollection<AttemptEntity> Attempts { get; set; } = new List<AttemptEntity>();
 }

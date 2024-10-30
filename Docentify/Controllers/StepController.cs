@@ -36,7 +36,7 @@ public class StepController(
     
     [Authorize(Roles = "Institutions")]
     [HttpPost("Course/{courseId:int}")]
-    public async Task<IActionResult> InsertStepIntoCourse(int courseId, InsertStepCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> InsertStep(int courseId, InsertStepCommand command, CancellationToken cancellationToken)
     {
         command.CourseId = courseId;
         

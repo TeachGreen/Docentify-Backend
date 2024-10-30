@@ -11,7 +11,7 @@ namespace Docentify.Domain.Entities.User;
 public class UserProgressEntity
 {
     [Key]
-    [Column("enrollment_id")]
+    [Column("enrollmentId")]
     public int EnrollmentId { get; set; }
 
     [Key]

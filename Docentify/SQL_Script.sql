@@ -12,11 +12,11 @@ CREATE TABLE IF NOT EXISTS Users
     telephone     VARCHAR(45)  NULL,
     gender        CHAR(2)      NULL,
     document      VARCHAR(45)  NOT NULL,
-    creation_date DATETIME     NULL DEFAULT CURRENT_TIMESTAMP,
-    update_date   DATETIME     NULL DEFAULT CURRENT_TIMESTAMP,
+    creationDate DATETIME     NULL DEFAULT CURRENT_TIMESTAMP,
+    updateDate   DATETIME     NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE INDEX email_UNIQUE (email ASC) VISIBLE,
-    UNIQUE INDEX document_UNIQUE (document ASC) VISIBLE
+    UNIQUE INDEX (email ASC) VISIBLE,
+    UNIQUE INDEX (document ASC) VISIBLE
 );
 
 DROP TABLE IF EXISTS Institutions;
@@ -28,12 +28,12 @@ CREATE TABLE IF NOT EXISTS Institutions
     telephone VARCHAR(45)  NULL,
     address   VARCHAR(350) NULL,
     document  VARCHAR(45)  NOT NULL,
-    creation_date DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
-    update_date   DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    creationDate DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    updateDate   DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE INDEX email_UNIQUE (email ASC) VISIBLE,
-    UNIQUE INDEX name_UNIQUE (name ASC) VISIBLE,
-    UNIQUE INDEX document_UNIQUE (document ASC) VISIBLE
+    UNIQUE INDEX (email ASC) VISIBLE,
+    UNIQUE INDEX (name ASC) VISIBLE,
+    UNIQUE INDEX (document ASC) VISIBLE
 );
 
 DROP TABLE IF EXISTS UserPasswordHashes;
@@ -111,9 +111,9 @@ DROP TABLE IF EXISTS Activities;
 CREATE TABLE IF NOT EXISTS Activities
 (
     id     INT NOT NULL AUTO_INCREMENT,
-    allowedTries INT NOT NULL DEFAULT 3,
+    allowedAttempts INT NOT NULL DEFAULT 3,
     stepId INT NOT NULL,
-    PRIMARY KEY (id, stepId),
+    PRIMARY KEY (id),
     FOREIGN KEY (stepId) REFERENCES Steps (id)
         ON DELETE CASCADE
 );
@@ -121,13 +121,13 @@ CREATE TABLE IF NOT EXISTS Activities
 DROP TABLE IF EXISTS UserProgress;
 CREATE TABLE IF NOT EXISTS UserProgress
 (
-    enrollment_id INT      NOT NULL,
+    enrollmentId INT      NOT NULL,
     stepId        INT      NOT NULL,
     progressDate  DATETIME NOT NULL,
-    PRIMARY KEY (enrollment_id, stepId),
+    PRIMARY KEY (enrollmentId, stepId),
     FOREIGN KEY (stepId) REFERENCES Steps (id)
         ON DELETE CASCADE,
-    FOREIGN KEY (enrollment_id) REFERENCES Enrollments (id)
+    FOREIGN KEY (enrollmentId) REFERENCES Enrollments (id)
         ON DELETE CASCADE
 );
 
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS Questions
     id         INT  NOT NULL AUTO_INCREMENT,
     statement  TEXT NOT NULL,
     activityId INT  NOT NULL,
-    PRIMARY KEY (id, activityId),
+    PRIMARY KEY (id),
     FOREIGN KEY (activityId) REFERENCES Activities (id)
         ON DELETE CASCADE
 );
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS Options
     text       TEXT    NOT NULL,
     isCorrect  TINYINT NULL DEFAULT 0,
     questionId INT     NOT NULL,
-    PRIMARY KEY (id, questionId),
+    PRIMARY KEY (id),
     FOREIGN KEY (questionId) REFERENCES Questions (id)
         ON DELETE CASCADE
 );
@@ -228,19 +228,19 @@ CREATE TABLE IF NOT EXISTS StyleVariables
     name         VARCHAR(45) NOT NULL,
     defaultValue VARCHAR(45) NULL,
     PRIMARY KEY (id),
-    UNIQUE INDEX name_UNIQUE (name ASC) VISIBLE
+    UNIQUE INDEX (name ASC) VISIBLE
 );
 
 DROP TABLE IF EXISTS StyleVariablesValues;
 CREATE TABLE IF NOT EXISTS StyleVariablesValues
 (
-    style_id    INT         NOT NULL,
-    variable_id INT         NOT NULL,
+    styleId    INT         NOT NULL,
+    variableId INT         NOT NULL,
     value       VARCHAR(45) NOT NULL,
-    PRIMARY KEY (style_id, variable_id),
-    FOREIGN KEY (style_id) REFERENCES CourseStyles (id)
+    PRIMARY KEY (styleId, variableId),
+    FOREIGN KEY (styleId) REFERENCES CourseStyles (id)
         ON DELETE CASCADE,
-    FOREIGN KEY (variable_id) REFERENCES StyleVariables (id)
+    FOREIGN KEY (variableId) REFERENCES StyleVariables (id)
         ON DELETE CASCADE
 );
 
@@ -262,22 +262,22 @@ CREATE TABLE IF NOT EXISTS Cards
     id                   INT          NOT NULL AUTO_INCREMENT,
     nome                 VARCHAR(45)  NOT NULL,
     descricao            VARCHAR(250) NULL,
-    silhouette_image_url VARCHAR(200) NOT NULL,
-    achieved_image_url   VARCHAR(200) NOT NULL,
+    silhouetteImageUrl VARCHAR(200) NOT NULL,
+    achievedImageUrl   VARCHAR(200) NOT NULL,
     PRIMARY KEY (id),
-    UNIQUE INDEX nome_UNIQUE (nome ASC) VISIBLE
+    UNIQUE INDEX (nome ASC) VISIBLE
 );
 
 DROP TABLE IF EXISTS UserCards;
 CREATE TABLE IF NOT EXISTS UserCards
 (
-    user_id          INT      NOT NULL,
-    card_id          INT      NOT NULL,
+    userId          INT      NOT NULL,
+    cardId          INT      NOT NULL,
     acquirement_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, card_id),
-    FOREIGN KEY (user_id) REFERENCES Users (id)
+    PRIMARY KEY (userId, cardId),
+    FOREIGN KEY (userId) REFERENCES Users (id)
         ON DELETE CASCADE,
-    FOREIGN KEY (card_id) REFERENCES Cards (id)
+    FOREIGN KEY (cardId) REFERENCES Cards (id)
         ON DELETE CASCADE
 );
 
@@ -285,12 +285,26 @@ DROP TABLE IF EXISTS UserNotifications;
 CREATE TABLE IF NOT EXISTS UserNotifications
 (
     id                INT          NOT NULL AUTO_INCREMENT,
-    user_id           INT          NOT NULL,
+    userId           INT          NOT NULL,
     text              VARCHAR(250) NOT NULL,
     date              DATETIME     NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id, user_id),
-    FOREIGN KEY (user_id) REFERENCES Users (id)
+    PRIMARY KEY (id, userId),
+    FOREIGN KEY (userId) REFERENCES Users (id)
         ON DELETE CASCADE
+);
+
+DROP TABLE IF EXISTS ActivityAttempts;
+CREATE TABLE ActivityAttempts (
+    id                INT          NOT NULL AUTO_INCREMENT,
+    score             INT          NOT NULL,
+    date              DATETIME     NULL DEFAULT CURRENT_TIMESTAMP,
+    userId           INT          NOT NULL,
+    activityId       INT          NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (userId) REFERENCES Users (id)
+      ON DELETE CASCADE,
+    FOREIGN KEY (activityId) REFERENCES Activities (id)
+      ON DELETE CASCADE
 );
 
 -- Inserir usuários
@@ -381,7 +395,7 @@ VALUES
     (1, 'Aula inaugural', 'Aula inaugural', 1, 4, 'texto');
 
 -- Inserir progresso dos usuários nos cursos
-INSERT INTO UserProgress (enrollment_id, stepId, progressDate)
+INSERT INTO UserProgress (enrollmentId, stepId, progressDate)
 VALUES
     (1, 1, '2024-09-02'),
     (1, 2, '2024-09-05'),

@@ -22,6 +22,12 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     
     public DbSet<StepEntity> Steps { get; set; }
     
+    public DbSet<ActivityEntity> Activities { get; set; }
+    
+    public DbSet<QuestionEntity> Questions { get; set; }
+    
+    public DbSet<AttemptEntity> Attempts { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<InstitutionEntity>(entity =>
@@ -89,7 +95,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.Property(e => e.CreationDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
-                .HasColumnName("creation_date");
+                .HasColumnName("creationDate");
             entity.Property(e => e.Document)
                 .HasMaxLength(45)
                 .HasColumnName("document");
@@ -109,7 +115,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.Property(e => e.UpdateDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
-                .HasColumnName("update_date");
+                .HasColumnName("updateDate");
 
             entity.HasMany(d => d.Institutions).WithMany(p => p.Users)
                 .UsingEntity<Dictionary<string, object>>(
@@ -125,6 +131,34 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                         j.IndexerProperty<int>("UserId").HasColumnName("userId");
                         j.IndexerProperty<int>("InstitutionId").HasColumnName("institutionId");
                     });
+        });
+        
+        modelBuilder.Entity<AttemptEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("activityattempts");
+
+            entity.HasIndex(e => e.ActivityId, "activityId");
+
+            entity.HasIndex(e => e.UserId, "userId");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ActivityId).HasColumnName("activityId");
+            entity.Property(e => e.Date)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("date");
+            entity.Property(e => e.Score).HasColumnName("score");
+            entity.Property(e => e.UserId).HasColumnName("userId");
+
+            entity.HasOne(d => d.Activity).WithMany(p => p.Attempts)
+                .HasForeignKey(d => d.ActivityId)
+                .HasConstraintName("activityattempts_ibfk_2");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Attempts)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("activityattempts_ibfk_1");
         });
         
         modelBuilder.Entity<UserPasswordHashEntity>(entity =>

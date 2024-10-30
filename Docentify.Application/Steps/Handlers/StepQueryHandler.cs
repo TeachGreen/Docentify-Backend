@@ -34,7 +34,7 @@ public class StepQueryHandler(DatabaseContext context, IConfiguration configurat
         
         if (!user.Enrollments.Select(e => e.CourseId).Contains(step.CourseId))
         {
-            throw new ForbiddenException("User is not enrolled in the course that contains the step");
+            throw new ForbiddenException("User is not enrolled in the course that contains the provided step");
         }
 
         return new StepViewModel
@@ -70,7 +70,7 @@ public class StepQueryHandler(DatabaseContext context, IConfiguration configurat
         
         if (!institution.Courses.Select(e => e.Id).Contains(step.CourseId))
         {
-            throw new ForbiddenException("Institution is not owner of the course that contains the step");
+            throw new ForbiddenException("Institution is not owner of the course that contains the provided step");
         }
 
         return new StepViewModel

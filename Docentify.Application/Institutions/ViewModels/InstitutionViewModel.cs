@@ -1,4 +1,4 @@
-namespace Docentify.Application.Users.ViewModels;
+namespace Docentify.Application.Institutions.ViewModels;
 
 public class InstitutionViewModel
 {

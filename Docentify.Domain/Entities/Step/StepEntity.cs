@@ -35,7 +35,7 @@ public class StepEntity
     public int CourseId { get; set; }
 
     [InverseProperty("Step")]
-    public virtual ICollection<ActivityEntity> Activities { get; set; } = new List<ActivityEntity>();
+    public virtual ActivityEntity Activity { get; set; } = null!;
 
     [ForeignKey("CourseId")]
     [InverseProperty("Steps")]

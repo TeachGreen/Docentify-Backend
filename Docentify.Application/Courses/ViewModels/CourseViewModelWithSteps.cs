@@ -2,7 +2,7 @@ using Docentify.Application.Courses.ValueObjects;
 
 namespace Docentify.Application.Courses.ViewModels;
 
-public class CourseViewModelWithSteps
+public class CourseWithStepsViewModel
 {
     public int Id { get; set; }
     public string Name { get; set; }

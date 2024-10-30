@@ -1,10 +1,7 @@
 using AutoMapper;
-using Docentify.Application.Courses.Commands;
-using Docentify.Application.Courses.ViewModels;
 using Docentify.Application.Steps.Commands;
 using Docentify.Application.Steps.ViewModels;
 using Docentify.Application.Utils;
-using Docentify.Domain.Entities.Courses;
 using Docentify.Domain.Entities.Step;
 using Docentify.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;

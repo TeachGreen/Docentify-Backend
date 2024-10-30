@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Docentify.Domain.Entities.Step;
 
-[PrimaryKey("Id", "QuestionId")]
+[PrimaryKey("Id")]
 [Table("options")]
 [Index("QuestionId", Name = "questionId")]
 public class OptionEntity
@@ -16,9 +16,12 @@ public class OptionEntity
     public string Text { get; set; } = null!;
 
     [Column("isCorrect")]
-    public sbyte? IsCorrect { get; set; }
+    public bool? IsCorrect { get; set; }
 
-    [Key]
     [Column("questionId")]
     public int QuestionId { get; set; }
+    
+    [ForeignKey("QuestionId")]
+    [InverseProperty("Options")]
+    public virtual QuestionEntity Question { get; set; } = null!;
 }

@@ -1,5 +1,6 @@
 using AutoMapper;
 using Docentify.Application.Institutions.Commands;
+using Docentify.Application.Institutions.ViewModels;
 using Docentify.Application.Users.ViewModels;
 using Docentify.Application.Utils;
 using Docentify.Domain.Entities;

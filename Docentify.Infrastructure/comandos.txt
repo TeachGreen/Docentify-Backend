@@ -1,0 +1,1 @@
+dotnet ef dbcontext scaffold "Server=localhost; User ID=root; Password=root; Database=Docentify" MySql.EntityFrameworkCore -o docentifyaa -f --project .\Docentify.Infrastructure\ --startup-project .\Docentify\
