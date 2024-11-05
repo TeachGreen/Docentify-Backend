@@ -31,7 +31,8 @@ public class ExceptionMiddleware(RequestDelegate next)
             {
                 statusCode = response.StatusCode,
                 title = error.GetType().Name,
-                error = error.Message
+                error = error.Message,
+                stackTrace = error.StackTrace
             });
 
             await response.WriteAsync(result);
