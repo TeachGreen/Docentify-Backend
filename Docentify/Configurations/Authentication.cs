@@ -18,10 +18,10 @@ public static class Authentication
                     options.SaveToken = true;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidIssuer = configuration["Jwt:Issuer"],
-                        ValidAudiences = configuration.GetSection("Jwt:Audiences").Get<string[]>(),
+                        ValidIssuer = configuration["JwtIssuer"],
+                        ValidAudiences = configuration.GetSection("JwtAudiences").Get<string[]>(),
                         IssuerSigningKey =
-                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!)),
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtKey"]!)),
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,

@@ -79,10 +79,10 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             new(ClaimTypes.Role, "Users")
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtKey"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var jwt = new JwtSecurityToken(configuration["Jwt:Issuer"],
+        var jwt = new JwtSecurityToken(configuration["JwtIssuer"],
             "Users",
             claims,
             expires: DateTime.Now.AddDays(7),
@@ -157,10 +157,10 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             new(ClaimTypes.Role, "Institutions")
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtKey"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var jwt = new JwtSecurityToken(configuration["Jwt:Issuer"],
+        var jwt = new JwtSecurityToken(configuration["JwtIssuer"],
             "Institutions",
             claims,
             expires: DateTime.Now.AddDays(7),
