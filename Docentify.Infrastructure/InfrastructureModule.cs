@@ -14,7 +14,7 @@ public static class InfrastructureModule
     {
         services.AddDbContext<DatabaseContext>(options =>
         {
-            options.UseMySQL(configuration["ConnectionStrings:Default"]!);
+            options.UseMySQL(configuration["DBCONNECTION"]!);
         });
         
         return services;
