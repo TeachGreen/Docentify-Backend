@@ -16,13 +16,12 @@ public class AuthenticationController(
     [HttpPost("Register/User")]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterUserCommand command, RegisterUserCommandValidator validator, CancellationToken cancellationToken)
     {
-        return Ok("teste");
-        // var validation = await validator.ValidateAsync(command, cancellationToken);
-        // if (!validation.IsValid)
-        //     throw new BadRequestException(validation.Errors[0].ErrorMessage);
-        //
-        // var result = await commandHandler.RegisterUserAsync(command, cancellationToken);
-        // return Created(string.Empty, result);
+        var validation = await validator.ValidateAsync(command, cancellationToken);
+        if (!validation.IsValid)
+            throw new BadRequestException(validation.Errors[0].ErrorMessage);
+        
+        var result = await commandHandler.RegisterUserAsync(command, cancellationToken);
+        return Created(string.Empty, result);
     }
     
     [HttpPost("Login/User")]
