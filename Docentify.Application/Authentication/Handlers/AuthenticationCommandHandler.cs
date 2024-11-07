@@ -5,6 +5,7 @@ using Docentify.Application.Authentication.Commands;
 using Docentify.Application.Authentication.ViewModels;
 using Docentify.Application.Utils;
 using Docentify.Domain.Entities;
+using Docentify.Domain.Entities.Courses;
 using Docentify.Domain.Entities.User;
 using Docentify.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
@@ -43,7 +44,24 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             Gender = command.Gender,
             UserPasswordHash = passwordHash
         };
+        
+        var docentify = await context.Institutions
+            .Include(i => i.Courses)
+            .Include(i => i.Users)
+            .FirstOrDefaultAsync(i => i.Email == "docentify@gmail.com", cancellationToken);
+        user.Institutions.Add(docentify);
         await context.Users.AddAsync(user, cancellationToken);
+        docentify.Users.Add(user);
+        
+        foreach (var requiredCourse in docentify.Courses.Where(c => c.IsRequired.GetValueOrDefault()))
+        {
+            var enrollment = new EnrollmentEntity
+            {
+                CourseId = requiredCourse.Id,
+                UserId = user.Id
+            };
+            user.Enrollments.Add(enrollment);
+        }
         
         await context.SaveChangesAsync(cancellationToken);
         return new RegisterUserViewModel

@@ -25,6 +25,7 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             .Include(u => u.Enrollments)
             .ThenInclude(e => e.Course)
             .ThenInclude(c => c.Steps)
+            .Include(u => u.Institutions)
             .Where(u => u.Email == jwtData["email"])
             .FirstOrDefaultAsync(cancellationToken);
         if (user is null)
@@ -33,14 +34,22 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
         }
 
         var inProgressCourses = user.Enrollments
-            .Where(enrollment => enrollment.UserProgresses.Any() && enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId != enrollment.Course.Steps.MaxBy(s => s.Order).Id)
-            .Select(enrollment => enrollment.CourseId);
+            .Where(enrollment => (enrollment.UserProgresses.Any() &&
+                                  enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId !=
+                                  enrollment.Course.Steps.MaxBy(s => s.Order).Id) || (enrollment.IsActive && !enrollment.UserProgresses.Any()) )
+            .Select(enrollment => enrollment.CourseId).ToList();
+        inProgressCourses.AddRange(user.Enrollments
+            .Where(enrollment => enrollment.UserProgresses.Any() &&
+                                 enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId !=
+                                 enrollment.Course.Steps.MaxBy(s => s.Order).Id)
+            .Select(enrollment => enrollment.CourseId));
         var completedCourses = user.Enrollments
             .Where(enrollment => enrollment.UserProgresses.Any() && enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId != enrollment.Course.Steps.MaxBy(s => s.Order).Id)
             .Select(enrollment => enrollment.CourseId);
         var favoriteCourses = user.Favorites.Select(favorite => favorite.CourseId);
 
-        var courses = context.Courses.AsNoTracking();
+        var courses = context.Courses.AsNoTracking()
+            .Where(c => user.Institutions.Select(i => i.Id).Contains(c.InstitutionId));
 
         switch (query.Progress)
         {

@@ -33,6 +33,19 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
         mapper.Map(command, course);
         
         institution.Courses.Add(course);
+
+        if (course.IsRequired.GetValueOrDefault())
+        {
+            foreach (var user in course.Institution.Users)
+            {
+                var enrollment = new EnrollmentEntity
+                {
+                    CourseId = course.Id,
+                    UserId = user.Id
+                };
+                user.Enrollments.Add(enrollment);
+            }
+        }
         
         await context.SaveChangesAsync(cancellationToken);
         return new CourseViewModel
