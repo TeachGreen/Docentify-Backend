@@ -13,7 +13,7 @@ public class CourseController(
     CourseCommandHandler commandHandler,
     IConfiguration configuration) : ControllerBase
 {
-    [Authorize(Roles = "Users")]
+    // [Authorize(Roles = "Users")]
     [HttpGet("User")]
     public async Task<IActionResult> QueryCourses([FromQuery] QueryCoursesQuery query, CancellationToken cancellationToken)
     {
@@ -21,7 +21,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Users,Institutions")]
+    // [Authorize(Roles = "Users,Institutions")]
     [HttpGet("Institution/{institutionId:int}")]
     public async Task<IActionResult> GetInstitutionCourses([FromRoute] int institutionId, [FromQuery] GetInstitutionCoursesQuery query, CancellationToken cancellationToken)
     {
@@ -31,7 +31,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Users,Institutions")]
+    // [Authorize(Roles = "Users,Institutions")]
     [HttpGet("{courseId:int}")]
     public async Task<IActionResult> GetCourseById([FromRoute] int courseId, CancellationToken cancellationToken)
     {
@@ -44,7 +44,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Users,Institutions")]
+    // [Authorize(Roles = "Users,Institutions")]
     [HttpGet("{courseId:int}/with-steps")]
     public async Task<IActionResult> GetCourseByIdWithSteps([FromRoute] int courseId, CancellationToken cancellationToken)
     {
@@ -57,7 +57,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Users")]
+    // [Authorize(Roles = "Users")]
     [HttpPost("Favorite/{courseId:int}")]
     public async Task<IActionResult> FavoriteCourse([FromRoute] int courseId, CancellationToken cancellationToken)
     {
@@ -70,7 +70,7 @@ public class CourseController(
         return Ok();
     }
     
-    [Authorize(Roles = "Users")]
+    // [Authorize(Roles = "Users")]
     [HttpPost("Enroll/{courseId:int}")]
     public async Task<IActionResult> EnrollCourse([FromRoute] int courseId, CancellationToken cancellationToken)
     {
@@ -83,7 +83,7 @@ public class CourseController(
         return Ok();
     }
     
-    [Authorize(Roles = "Users")]
+    // [Authorize(Roles = "Users")]
     [HttpPost("Discontinue/{courseId:int}")]
     public async Task<IActionResult> DiscontinueCourse([FromRoute] int courseId, CancellationToken cancellationToken)
     {
@@ -96,7 +96,7 @@ public class CourseController(
         return Ok();
     }
     
-    [Authorize(Roles = "Institutions")]
+    // [Authorize(Roles = "Institutions")]
     [HttpPost]
     public async Task<IActionResult> InsertCourse([FromBody] InsertCourseCommand command, CancellationToken cancellationToken)
     {
@@ -104,7 +104,7 @@ public class CourseController(
         return Created(string.Empty, result);
     }
     
-    [Authorize(Roles = "Institutions")]
+    // [Authorize(Roles = "Institutions")]
     [HttpPatch("{courseId:int}")]
     public async Task<IActionResult> UpdateCourse([FromRoute] int courseId, [FromBody] UpdateCourseCommand command, CancellationToken cancellationToken)
     {
@@ -114,7 +114,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Institutions")]
+    // [Authorize(Roles = "Institutions")]
     [HttpDelete("{courseId:int}")]
     public async Task<IActionResult> DeleteCourse([FromRoute] int courseId, CancellationToken cancellationToken)
     {
