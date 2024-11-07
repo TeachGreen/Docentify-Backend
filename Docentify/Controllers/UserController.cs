@@ -14,6 +14,13 @@ public class UserController(
     IConfiguration configuration) : ControllerBase
 {
     // [Authorize(Roles = "Users,Institutions")]
+    [HttpGet]
+    public async Task<IActionResult> GetUser(CancellationToken cancellationToken)
+    {
+        var result = await queryHandler.GetUserAsync(Request, cancellationToken);
+        return Ok(result);
+    }
+    
     [HttpGet("{userId:int}")]
     public async Task<IActionResult> GetUserById([FromRoute] int userId, CancellationToken cancellationToken)
     {

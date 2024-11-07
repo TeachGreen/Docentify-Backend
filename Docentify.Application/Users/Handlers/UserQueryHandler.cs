@@ -45,6 +45,52 @@ public class UserQueryHandler(DatabaseContext context, IConfiguration configurat
         };
     }
     
+    public async Task<UserViewModel> GetUserAsync(HttpRequest request,  CancellationToken cancellationToken)
+    {
+        var jwtData = JwtUtils.GetJwtDataFromRequest(request);
+
+        var user = await context.Users.AsNoTracking()
+            .Include(u => u.Enrollments)
+            .ThenInclude(e => e.UserProgresses)
+            .Include(u => u.Enrollments)
+            .ThenInclude(e => e.Course)
+            .ThenInclude(c => c.Steps)
+            .FirstOrDefaultAsync(u => u.Email == jwtData["email"], cancellationToken);
+        if (user is null)
+        {
+            throw new NotFoundException("No user with the provided credentials was found");
+        }
+        
+        var inProgressCourses = user.Enrollments
+            .Where(enrollment => (enrollment.UserProgresses.Any() &&
+                                  enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId !=
+                                  enrollment.Course.Steps.MaxBy(s => s.Order).Id) || (enrollment.IsActive && !enrollment.UserProgresses.Any()) )
+            .Select(enrollment => enrollment.CourseId).ToList();
+        inProgressCourses.AddRange(user.Enrollments
+            .Where(enrollment => enrollment.UserProgresses.Any() &&
+                                 enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId !=
+                                 enrollment.Course.Steps.MaxBy(s => s.Order).Id)
+            .Select(enrollment => enrollment.CourseId));
+        var completedCourses = user.Enrollments
+            .Where(enrollment => enrollment.UserProgresses.Any() && enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId != enrollment.Course.Steps.MaxBy(s => s.Order).Id)
+            .Select(enrollment => enrollment.CourseId).Count();
+
+        var cancelledEnrollments = user.Enrollments.Where(enrollment => !enrollment.IsActive).Count();
+        
+        return new UserViewModel
+        {
+            Name = user.Name,
+            BirthDate = user.BirthDate,
+            Email = user.Email,
+            Telephone = user.Telephone,
+            Document = user.Document,
+            Gender = user.Gender,
+            CompletedCourses = completedCourses,
+            OngoingCourses = inProgressCourses.Count,
+            CancelledEnrollments = cancelledEnrollments
+        };            
+    }
+    
     public async Task<UserPreferencesViewModel> GetUserPreferencesAsync(HttpRequest request,  CancellationToken cancellationToken)
     {
         var jwtData = JwtUtils.GetJwtDataFromRequest(request);
