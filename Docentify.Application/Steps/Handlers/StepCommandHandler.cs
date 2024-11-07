@@ -42,13 +42,7 @@ public class StepCommandHandler(DatabaseContext context, IConfiguration configur
         mapper.Map(command, step);
         
         var lastStep = course.Steps.OrderByDescending(s => s.Order).FirstOrDefault();
-        if (lastStep is not null && step.Order < lastStep.Order)
-        {
-            foreach (var s in course.Steps.Where(s => s.Order >= step.Order))
-            {
-                s.Order++;
-            }
-        }
+        step.Order = lastStep?.Order + 1 ?? 1;
         
         course.Steps.Add(step);
         

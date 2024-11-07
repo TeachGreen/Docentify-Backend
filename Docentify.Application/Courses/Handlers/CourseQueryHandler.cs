@@ -146,6 +146,17 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
     
     public async Task<CourseViewModel> GetCourseByIdAsync(GetCourseByIdQuery query, HttpRequest request,  CancellationToken cancellationToken)
     {
+        var jwtData = JwtUtils.GetJwtDataFromRequest(request);
+        
+        var user = await context.Users.AsNoTracking()
+            .Include(u => u.Enrollments)
+            .Where(u => u.Email == jwtData["email"])
+            .FirstOrDefaultAsync(cancellationToken);
+        if (user is null)
+        {
+            throw new NotFoundException("No user with the provided authentication was found");
+        }
+        
         var course = await context.Courses.AsNoTracking()
             .Where(c => c.Id == query.CourseId)
             .FirstOrDefaultAsync(cancellationToken);
@@ -161,12 +172,24 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
                 Name = course.Name,
                 Description = course.Description,
                 IsRequired = course.IsRequired.GetValueOrDefault(),
+                IsEnrolled = user.Enrollments.Select(e => e.CourseId).Contains(course.Id),
                 RequiredTimeLimit = course.RequiredTimeLimit
             };
     }
     
     public async Task<CourseWithStepsViewModel> GetCourseByIdWithStepsAsync(GetCourseByIdQuery query, HttpRequest request,  CancellationToken cancellationToken)
     {
+        var jwtData = JwtUtils.GetJwtDataFromRequest(request);
+        
+        var user = await context.Users.AsNoTracking()
+            .Include(u => u.Enrollments)
+            .Where(u => u.Email == jwtData["email"])
+            .FirstOrDefaultAsync(cancellationToken);
+        if (user is null)
+        {
+            throw new NotFoundException("No user with the provided authentication was found");
+        }
+        
         var course = await context.Courses.AsNoTracking()
             .Where(c => c.Id == query.CourseId)
             .Include(c => c.Steps)
@@ -183,6 +206,8 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             Name = course.Name,
             Description = course.Description,
             IsRequired = course.IsRequired.GetValueOrDefault(),
+            IsEnrolled = user.Enrollments.Select(e => e.CourseId).Contains(course.Id),
+            RequiredTimeLimit = course.RequiredTimeLimit,
             Steps = course.Steps.Select(s => new StepValueObject
             {
                 Id = s.Id,
