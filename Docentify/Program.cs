@@ -6,7 +6,7 @@ builder.Services.ConfigureInfrastructure(builder.Configuration);
 builder.Services.AddMvc().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
-
+builder.Services.AddCors();
 builder.Services.ConfigureAuthentication(builder.Configuration);
 
 var app = builder.Build();
@@ -18,6 +18,12 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection();
+
+app.UseCors(x => x
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true)
+    .AllowCredentials());
 
 app.UseCookiePolicy(new CookiePolicyOptions
     {
