@@ -17,6 +17,8 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
     {
         var jwtData = JwtUtils.GetJwtDataFromRequest(request);
         var institution = await context.Institutions
+            .Include(i => i.Users)
+            .ThenInclude(u => u.Enrollments)
             .FirstOrDefaultAsync(i => i.Email == jwtData["email"], cancellationToken);
 
         if (institution is null)
@@ -33,10 +35,11 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
         mapper.Map(command, course);
         
         institution.Courses.Add(course);
+        await context.SaveChangesAsync(cancellationToken);
 
         if (course.IsRequired.GetValueOrDefault())
         {
-            foreach (var user in course.Institution.Users)
+            foreach (var user in institution.Users)
             {
                 var enrollment = new EnrollmentEntity
                 {
@@ -132,7 +135,6 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
         }
 
         var course = await context.Courses
-            .AsNoTracking()
             .Include(c => c.Institution)
             .FirstOrDefaultAsync(c => c.Id == command.CourseId, cancellationToken);
         if (course is null)
