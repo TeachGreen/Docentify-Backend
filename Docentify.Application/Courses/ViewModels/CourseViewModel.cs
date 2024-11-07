@@ -6,5 +6,6 @@ public class CourseViewModel
     public string Name { get; set; }
     public string? Description { get; set; }
     public bool? IsRequired { get; set; }
+    public bool? IsFavorited { get; set; }
     public int? RequiredTimeLimit { get; set; }
 }

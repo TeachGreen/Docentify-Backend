@@ -33,10 +33,10 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
         }
 
         var inProgressCourses = user.Enrollments
-            .Where(enrollment => enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId != enrollment.Course.Steps.MaxBy(s => s.Order).Id)
+            .Where(enrollment => enrollment.UserProgresses.Any() && enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId != enrollment.Course.Steps.MaxBy(s => s.Order).Id)
             .Select(enrollment => enrollment.CourseId);
         var completedCourses = user.Enrollments
-            .Where(enrollment => enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId != enrollment.Course.Steps.MaxBy(s => s.Order).Id)
+            .Where(enrollment => enrollment.UserProgresses.Any() && enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId != enrollment.Course.Steps.MaxBy(s => s.Order).Id)
             .Select(enrollment => enrollment.CourseId);
         var favoriteCourses = user.Favorites.Select(favorite => favorite.CourseId);
 
@@ -70,6 +70,27 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             courses = courses.Where(c => favoriteCourses.Contains(c.Id));
         }
         
+        if (query.OrderByDescending)
+        {
+            courses = query.OrderBy switch
+            {
+                "Name" => courses.OrderByDescending(c => c.Name),
+                "IsRequired" => courses.OrderByDescending(c => c.IsRequired),
+                "Date" => courses.OrderByDescending(c => c.CreationDate),
+                _ => courses
+            };
+        }
+        else
+        {
+            courses = query.OrderBy switch
+            {
+                "Name" => courses.OrderBy(c => c.Name),
+                "IsRequired" => courses.OrderBy(c => c.IsRequired),
+                "Date" => courses.OrderBy(c => c.CreationDate),
+                _ => courses
+            };
+        }
+        
         return await courses
             .Skip((query.Page - 1) * query.Amount)
             .Take(query.Amount)
@@ -78,7 +99,9 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
-                IsRequired = c.IsRequired.GetValueOrDefault()
+                IsRequired = c.IsRequired.GetValueOrDefault(),
+                IsFavorited = favoriteCourses.Contains(c.Id),
+                RequiredTimeLimit = c.RequiredTimeLimit
             })
             .ToListAsync(cancellationToken);
     }

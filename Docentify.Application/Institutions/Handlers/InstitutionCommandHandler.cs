@@ -1,9 +1,9 @@
 using AutoMapper;
 using Docentify.Application.Institutions.Commands;
 using Docentify.Application.Institutions.ViewModels;
-using Docentify.Application.Users.ViewModels;
 using Docentify.Application.Utils;
 using Docentify.Domain.Entities;
+using Docentify.Domain.Entities.Courses;
 using Docentify.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Docentify.Infrastructure.Database;
@@ -55,6 +55,7 @@ public class InstitutionCommandHandler(DatabaseContext context, IConfiguration c
         var jwtData = JwtUtils.GetJwtDataFromRequest(request);
         var institution = await context.Institutions
             .Include(i => i.Users)
+            .Include(i => i.Courses)
             .FirstOrDefaultAsync(i => i.Email == jwtData["email"], cancellationToken);
 
         if (institution is null)
@@ -75,6 +76,16 @@ public class InstitutionCommandHandler(DatabaseContext context, IConfiguration c
         }
         
         institution.Users.Add(user);
+        
+        foreach (var requiredCourse in institution.Courses.Where(c => c.IsRequired.GetValueOrDefault()))
+        {
+            var enrollment = new EnrollmentEntity
+            {
+                CourseId = requiredCourse.Id,
+                UserId = user.Id
+            };
+            user.Enrollments.Add(enrollment);
+        }
         
         await context.SaveChangesAsync(cancellationToken);
     }
