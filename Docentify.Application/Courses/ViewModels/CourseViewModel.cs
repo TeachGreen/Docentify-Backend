@@ -9,4 +9,5 @@ public class CourseViewModel
     public bool? IsFavorited { get; set; }
     public bool? IsEnrolled { get; set; }
     public int? RequiredTimeLimit { get; set; }
+    public int? Duration { get; set; }
 }

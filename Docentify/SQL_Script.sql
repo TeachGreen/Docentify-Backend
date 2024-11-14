@@ -55,10 +55,11 @@ CREATE TABLE IF NOT EXISTS Courses
     name          VARCHAR(45) NOT NULL,
     description   TEXT        NULL,
     institutionId INT         NOT NULL,
-    isRequired    BIT  NULL DEFAULT 0,
-    requiredTimeLimit INT    NULL DEFAULT 30,
-    creationDate DATETIME    NULL DEFAULT CURRENT_TIMESTAMP,
-    updateDate   DATETIME    NULL DEFAULT CURRENT_TIMESTAMP,
+    isRequired    BIT         NULL DEFAULT 0,
+    requiredTimeLimit INT     NULL DEFAULT 30,
+    creationDate DATETIME     NULL DEFAULT CURRENT_TIMESTAMP,
+    updateDate   DATETIME     NULL DEFAULT CURRENT_TIMESTAMP,
+    duration     INT          NULL DEFAULT 30,
     PRIMARY KEY (id),
     FOREIGN KEY (institutionId) REFERENCES Institutions (id)
         ON DELETE CASCADE

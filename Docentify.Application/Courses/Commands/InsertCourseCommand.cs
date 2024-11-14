@@ -6,4 +6,5 @@ public class InsertCourseCommand
     public string? Description { get; set; }
     public bool? IsRequired { get; set; }
     public int? RequiredTimeLimit { get; set; }
+    public int? Duration { get; set; }
 }

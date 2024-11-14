@@ -22,8 +22,11 @@ public class CourseEntity
     [Column("isRequired")]
     public bool? IsRequired { get; set; } = false;
     
+    [Column("duration")]
+    public int Duration { get; set; }
+    
     [Column("requiredTimeLimit")]
-    public int? RequiredTimeLimit { get; set; }
+    public int RequiredTimeLimit { get; set; } = 30;
 
     [Column("institutionId")]
     public int InstitutionId { get; set; }

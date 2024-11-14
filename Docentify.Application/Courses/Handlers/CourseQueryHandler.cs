@@ -110,7 +110,8 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
                 Description = c.Description,
                 IsRequired = c.IsRequired.GetValueOrDefault(),
                 IsFavorited = favoriteCourses.Contains(c.Id),
-                RequiredTimeLimit = c.RequiredTimeLimit
+                RequiredTimeLimit = c.RequiredTimeLimit,
+                Duration = c.Duration
             })
             .ToListAsync(cancellationToken);
     }
@@ -139,7 +140,8 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
-                IsRequired = c.IsRequired.GetValueOrDefault()
+                IsRequired = c.IsRequired.GetValueOrDefault(),
+                Duration = c.Duration
             })
             .ToListAsync(cancellationToken);
     }
@@ -173,7 +175,8 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
                 Description = course.Description,
                 IsRequired = course.IsRequired.GetValueOrDefault(),
                 IsEnrolled = user.Enrollments.Select(e => e.CourseId).Contains(course.Id),
-                RequiredTimeLimit = course.RequiredTimeLimit
+                RequiredTimeLimit = course.RequiredTimeLimit,
+                Duration = course.Duration
             };
     }
     
@@ -201,6 +204,9 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             throw new NotFoundException("No course with the provided id was found");
         }
         
+        var enrollment = user.Enrollments
+            .FirstOrDefault(e => e.CourseId == course.Id);
+        
         return new CourseWithStepsViewModel
         {
             Id = course.Id,
@@ -208,7 +214,7 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             Description = course.Description,
             IsRequired = course.IsRequired.GetValueOrDefault(),
             IsEnrolled = user.Enrollments.Select(e => e.CourseId).Contains(course.Id),
-            RequiredTimeLimit = course.RequiredTimeLimit,
+            RequiredDate = enrollment?.EnrollmentDate.GetValueOrDefault().AddDays(course.RequiredTimeLimit),
             Steps = course.Steps.Select(s => new StepValueObject
             {
                 Id = s.Id,

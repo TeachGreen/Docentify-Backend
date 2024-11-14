@@ -57,7 +57,8 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
             Name = course.Name, 
             Description = course.Description,
             IsRequired = course.IsRequired,
-            RequiredTimeLimit = course.RequiredTimeLimit
+            RequiredTimeLimit = course.RequiredTimeLimit,
+            Duration = course.Duration
         };
     }
     
@@ -95,7 +96,8 @@ public class CourseCommandHandler(DatabaseContext context, IConfiguration config
             Name = course.Name, 
             Description = course.Description,
             IsRequired = course.IsRequired,
-            RequiredTimeLimit = course.RequiredTimeLimit
+            RequiredTimeLimit = course.RequiredTimeLimit,
+            Duration = course.Duration
         };
     }
     

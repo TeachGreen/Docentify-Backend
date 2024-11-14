@@ -9,6 +9,6 @@ public class CourseWithStepsViewModel
     public string? Description { get; set; }
     public bool IsRequired { get; set; }
     public bool IsEnrolled { get; set; }
-    public int? RequiredTimeLimit { get; set; }
+    public DateTime? RequiredDate { get; set; }
     public List<StepValueObject> Steps;
 }
