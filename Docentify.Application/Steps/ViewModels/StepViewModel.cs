@@ -10,4 +10,5 @@ public class StepViewModel
     public int Order { get; set; }
     public EStepType Type { get; set; } 
     public string Content { get; set; }
+    public bool IsCompleted { get; set; }
 }

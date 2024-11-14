@@ -48,10 +48,7 @@ public class UserEntity
 
     [InverseProperty("User")]
     public virtual ICollection<FavoriteEntity> Favorites { get; set; } = new List<FavoriteEntity>();
-    //
-    // [InverseProperty("User")]
-    // public virtual ICollection<Usercard> Usercards { get; set; } = new List<Usercard>();
-    //
+    
     // [InverseProperty("User")]
     // public virtual ICollection<Usernotification> Usernotifications { get; set; } = new List<Usernotification>();
 
@@ -63,7 +60,7 @@ public class UserEntity
 
     // [InverseProperty("User")]
     // public virtual Userscore? Userscore { get; set; }
-    //
+    
     [InverseProperty("Users")]
     public virtual ICollection<InstitutionEntity> Institutions { get; set; } = new List<InstitutionEntity>();
     

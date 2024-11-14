@@ -15,7 +15,6 @@ public class StepController(
     StepCommandHandler commandHandler,
     IConfiguration configuration) : ControllerBase
 {
-    // [Authorize(Roles = "Users,Institutions")]
     [HttpGet("{stepId:int}")]
     public async Task<IActionResult> GetStepById([FromRoute] int stepId, CancellationToken cancellationToken)
     {
@@ -34,7 +33,6 @@ public class StepController(
         return Ok(result);
     }
     
-    // [Authorize(Roles = "Institutions")]
     [HttpPost("Course/{courseId:int}")]
     public async Task<IActionResult> InsertStep(int courseId, InsertStepCommand command, CancellationToken cancellationToken)
     {
@@ -43,7 +41,6 @@ public class StepController(
         return Created(string.Empty, await commandHandler.InsertStepAsync(command, Request, cancellationToken));
     }
     
-    // [Authorize(Roles = "Institutions")]
     [HttpPatch("{stepId:int}")]
     public async Task<IActionResult> UpdateStep(int stepId, [FromBody] UpdateStepCommand command, CancellationToken cancellationToken)
     {
@@ -54,13 +51,21 @@ public class StepController(
         return Ok(result);
     }
     
-    // [Authorize(Roles = "Institutions")]
     [HttpDelete("{stepId:int}")]
     public async Task<IActionResult> DeleteStep(int stepId, CancellationToken cancellationToken)
     {
         var command = new DeleteStepCommand { StepId = stepId };
         
         await commandHandler.DeleteStepAsync(command, Request, cancellationToken);
+        return NoContent();
+    }
+    
+    [HttpPost("Complete/{stepId:int}")]
+    public async Task<IActionResult> CompleteStep(int stepId, CancellationToken cancellationToken)
+    {
+        var command = new CompleteStepCommand { StepId = stepId };
+        
+        await commandHandler.CompleteStepAsync(command, Request, cancellationToken);
         return NoContent();
     }
 }

@@ -28,6 +28,8 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     
     public DbSet<AttemptEntity> Attempts { get; set; }
     
+    public DbSet<UserProgressEntity> UserProgresses { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<InstitutionEntity>(entity =>

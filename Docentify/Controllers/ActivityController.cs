@@ -15,7 +15,6 @@ public class ActivityController(
     ActivityCommandHandler commandHandler,
     IConfiguration configuration) : ControllerBase
 {
-    // [Authorize(Roles = "Users,Institutions")]
     [HttpGet("{activityId:int}")]
     public async Task<IActionResult> GetActivityById([FromRoute] int activityId, CancellationToken cancellationToken)
     {
@@ -33,8 +32,7 @@ public class ActivityController(
         
         return Ok(result);
     }
-    
-    // [Authorize(Roles = "Users,Institutions")]
+
     [HttpGet("{activityId:int}/Attempt")]
     public async Task<IActionResult> GetActivityAttemptHistory(GetActivityAttemptHistoryQuery query, CancellationToken cancellationToken)
     {
@@ -51,15 +49,13 @@ public class ActivityController(
         
         return Ok(result);
     }
-    
-    // [Authorize(Roles = "Users")]
+
     [HttpPost("{activityId:int}/Attempt")]
     public async Task<IActionResult> SubmitActivityAttempt(SubmitActivityAttemptCommand command, CancellationToken cancellationToken)
     {
         return Ok(await commandHandler.SubmitActivityAttemptAsync(command, Request, cancellationToken));
     }
-    
-    // [Authorize(Roles = "Institutions")]
+
     [HttpPost("Step/{stepId:int}")]
     public async Task<IActionResult> InsertActivity(int stepId, InsertActivityCommand command, CancellationToken cancellationToken)
     {
@@ -67,8 +63,7 @@ public class ActivityController(
         
         return Created(string.Empty, await commandHandler.InsertActivityAsync(command, Request, cancellationToken));
     }
-    
-    // [Authorize(Roles = "Institutions")]
+
     [HttpPost("{activityId:int}/Question")]
     public async Task<IActionResult> InsertQuestion([FromRoute] int activityId, [FromBody] InsertQuestionCommand command, CancellationToken cancellationToken)
     {
@@ -76,8 +71,7 @@ public class ActivityController(
         
         return Created(string.Empty, await commandHandler.InsertQuestionAsync(command, Request, cancellationToken));
     }
-    
-    // [Authorize(Roles = "Institutions")]
+
     [HttpPatch("{activityId:int}")]
     public async Task<IActionResult> UpdateActivity([FromRoute] int activityId, [FromBody] UpdateActivityCommand command, CancellationToken cancellationToken)
     {
@@ -87,8 +81,7 @@ public class ActivityController(
         
         return Ok(result);
     }
-    
-    // [Authorize(Roles = "Institutions")]
+
     [HttpPatch("Question/{questionId:int}")]
     public async Task<IActionResult> UpdateActivity([FromRoute] int questionId, [FromBody] UpdateQuestionCommand command, CancellationToken cancellationToken)
     {
@@ -99,8 +92,6 @@ public class ActivityController(
         return Ok(result);
     }
 
-    
-    // [Authorize(Roles = "Institutions")]
     [HttpDelete("{activityId:int}")]
     public async Task<IActionResult> DeleteActivity([FromRoute] int activityId, CancellationToken cancellationToken)
     {
@@ -109,8 +100,7 @@ public class ActivityController(
         await commandHandler.DeleteActivityAsync(command, Request, cancellationToken);
         return NoContent();
     }
-    
-    // [Authorize(Roles = "Institutions")]
+
     [HttpDelete("Question/{questionId:int}")]
     public async Task<IActionResult> DeleteQuestion([FromRoute] int questionId, CancellationToken cancellationToken)
     {

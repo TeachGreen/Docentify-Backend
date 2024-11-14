@@ -3,6 +3,7 @@ using Docentify.Application.Steps.Commands;
 using Docentify.Application.Steps.ViewModels;
 using Docentify.Application.Utils;
 using Docentify.Domain.Entities.Step;
+using Docentify.Domain.Entities.User;
 using Docentify.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Docentify.Infrastructure.Database;
@@ -128,6 +129,51 @@ public class StepCommandHandler(DatabaseContext context, IConfiguration configur
         }
 
         context.Steps.Remove(step);
+        
+        await context.SaveChangesAsync(cancellationToken);
+    }
+    
+    public async Task CompleteStepAsync(CompleteStepCommand command, HttpRequest request, CancellationToken cancellationToken)
+    {
+        var jwtData = JwtUtils.GetJwtDataFromRequest(request);
+        
+        var user = await context.Users
+            .Include(u => u.Enrollments)
+            .Where(u => u.Email == jwtData["email"])
+            .FirstOrDefaultAsync(cancellationToken);
+        if (user is null)
+        {
+            throw new NotFoundException("No user with the provided authentication was found");
+        }
+        
+        var step = await context.Steps
+            .Include(s => s.UserProgresses)
+            .Where(s => s.Id == command.StepId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (step is null)
+        {
+            throw new NotFoundException("No step with the provided id was found");
+        }
+
+        var enrollment = user.Enrollments
+            .FirstOrDefault(e => e.CourseId == step.CourseId);
+        if (enrollment is null)
+        {
+            throw new ForbiddenException("User is not enrolled in the course that contains the provided step");
+        }
+        
+        if (step.UserProgresses.Any(u => u.StepId == step.Id && u.EnrollmentId == enrollment.Id))
+        {
+            throw new ConflictException("User has already completed the provided step");
+        }
+        
+        var userProgress = new UserProgressEntity()
+        {
+            Enrollment = enrollment,
+            Step = step,
+            ProgressDate = DateTime.Now
+        };
+        await context.UserProgresses.AddAsync(userProgress, cancellationToken);
         
         await context.SaveChangesAsync(cancellationToken);
     }

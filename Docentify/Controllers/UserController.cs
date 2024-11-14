@@ -13,7 +13,6 @@ public class UserController(
     UserCommandHandler commandHandler,
     IConfiguration configuration) : ControllerBase
 {
-    // [Authorize(Roles = "Users,Institutions")]
     [HttpGet]
     public async Task<IActionResult> GetUser(CancellationToken cancellationToken)
     {
@@ -30,7 +29,6 @@ public class UserController(
         return Ok(result);
     }
 
-    // [Authorize(Roles = "Users")]
     [HttpPatch]
     public async Task<IActionResult> UpdateUser([FromBody] UpdateUserCommand command,
         CancellationToken cancellationToken)
@@ -39,7 +37,6 @@ public class UserController(
         return Ok(result);
     }
 
-    // [Authorize(Roles = "Users")]
     [HttpGet("Preferences")]
     public async Task<IActionResult> GetUserPreferences(CancellationToken cancellationToken)
     {
@@ -47,7 +44,6 @@ public class UserController(
         return Ok(result);
     }
 
-    // [Authorize(Roles = "Users")]
     [HttpPatch("Preferences")]
     public async Task<IActionResult> UpdateUserPreferences([FromBody] UpdateUserPreferencesCommand command,
         CancellationToken cancellationToken)

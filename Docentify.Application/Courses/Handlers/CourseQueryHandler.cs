@@ -183,6 +183,7 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
         
         var user = await context.Users.AsNoTracking()
             .Include(u => u.Enrollments)
+            .ThenInclude(e => e.UserProgresses)
             .Where(u => u.Email == jwtData["email"])
             .FirstOrDefaultAsync(cancellationToken);
         if (user is null)
@@ -214,7 +215,9 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
                 Title = s.Title,
                 Description = s.Description,
                 Order = s.Order,
-                Type = s.Type
+                Type = s.Type,
+                IsCompleted = user.Enrollments
+                    .SelectMany(e => e.UserProgresses).Any(up => up.StepId == s.Id)
             }).ToList()
         };
     }

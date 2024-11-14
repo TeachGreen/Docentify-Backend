@@ -13,7 +13,6 @@ public class InstitutionController(
     InstitutionCommandHandler commandHandler,
     IConfiguration configuration) : ControllerBase
 {
-    // [Authorize(Roles = "Users,Institutions")]
     [HttpGet("{institutionId:int}")]
     public async Task<IActionResult> GetInstitutionById([FromRoute] int institutionId, CancellationToken cancellationToken)
     {
@@ -22,8 +21,7 @@ public class InstitutionController(
         var result = await queryHandler.GetInstitutionByIdAsync(query, Request, cancellationToken);
         return Ok(result);
     }
-    
-    // [Authorize(Roles = "Users,Institutions")]
+
     [HttpGet("{institutionId:int}/Users")]
     public async Task<IActionResult> GetInstitutionUsers([FromRoute] int institutionId, [FromQuery] GetInstitutionUsersQuery query, CancellationToken cancellationToken)
     {
@@ -32,16 +30,14 @@ public class InstitutionController(
         var result = await queryHandler.GetInstitutionUsersAsync(query, Request, cancellationToken);
         return Ok(result);
     }
-    
-    // [Authorize(Roles = "Institutions")]
+
     [HttpPatch]
     public async Task<IActionResult> UpdateInstitution([FromBody] UpdateInstitutionCommand command, CancellationToken cancellationToken)
     {
         var result = await commandHandler.UpdateInstitutionAsync(command, Request, cancellationToken);
         return Ok(result);
     }
-    
-    // [Authorize(Roles = "Institutions")]
+
     [HttpPost("AssociateById/{userId}")]
     public async Task<IActionResult> AssociateUserById(int userId, CancellationToken cancellationToken)
     {
@@ -53,8 +49,7 @@ public class InstitutionController(
         await commandHandler.AssociateUserByIdAsync(command, Request, cancellationToken);
         return Ok();
     }
-    
-    // [Authorize(Roles = "Institutions")]
+
     [HttpPost("AssociateByDocument/{document}")]
     public async Task<IActionResult> AssociateUserByDocument(string document, CancellationToken cancellationToken)
     {
