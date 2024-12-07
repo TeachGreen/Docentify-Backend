@@ -215,6 +215,7 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             IsRequired = course.IsRequired.GetValueOrDefault(),
             IsEnrolled = user.Enrollments.Select(e => e.CourseId).Contains(course.Id),
             RequiredDate = enrollment?.EnrollmentDate.GetValueOrDefault().AddDays(course.RequiredTimeLimit),
+            Duration = course.Duration,
             Steps = course.Steps.Select(s => new StepValueObject
             {
                 Id = s.Id,
