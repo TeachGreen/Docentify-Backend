@@ -234,4 +234,47 @@ public class ActivityQueryHandler(DatabaseContext context, IConfiguration config
             Passed = a.Score >= activity.Questions.Count / 2
         }).ToList();
     }
+    
+    public async Task<List<AttemptViewModel>> GetActivityAttemptHistoryByStepIdAsync(GetActivityAttemptHistoryByStepIdQuery query, HttpRequest request,  CancellationToken cancellationToken)
+    {
+        var jwtData = JwtUtils.GetJwtDataFromRequest(request);
+        
+        var user = await context.Users.AsNoTracking()
+            .Include(u => u.Enrollments)
+            .Where(u => u.Email == jwtData["email"])
+            .FirstOrDefaultAsync(cancellationToken);
+        if (user is null)
+        {
+            throw new NotFoundException("No user with the provided authentication was found");
+        }
+        
+        var activity = await context.Activities.AsNoTracking()
+            .Where(a => a.StepId == query.StepId)
+            .Include(a => a.Step)
+            .Include(a => a.Questions)
+            .ThenInclude(q => q.Options)
+            .Include(a => a.Attempts)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (activity is null)
+        {
+            throw new NotFoundException("No activity with the provided step id was found");
+        }
+        
+        if (!user.Enrollments.Select(e => e.CourseId).Contains(activity.Step.CourseId))
+        {
+            throw new ForbiddenException("User is not enrolled in the course that contains the provided activity");
+        }
+
+        var attempts = activity.Attempts.Where(a => a.UserId == user.Id).Select(a => new AttemptViewModel
+        {
+            UserId = a.UserId,
+            ActivityId = a.ActivityId,
+            Score = a.Score,
+            Date = a.Date,
+            Passed = a.Passed
+        }).ToList();
+        
+        return attempts;
+    }
+
 }

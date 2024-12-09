@@ -61,6 +61,12 @@ public class ActivityController(
         
         return Ok(result);
     }
+    
+    [HttpGet("Step/{stepId:int}/Attempt")]
+    public async Task<IActionResult> GetActivityAttemptHistoryByStepId(GetActivityAttemptHistoryByStepIdQuery query, CancellationToken cancellationToken)
+    {
+        return Ok(await queryHandler.GetActivityAttemptHistoryByStepIdAsync(query, Request, cancellationToken));
+    }
 
     [HttpPost("{activityId:int}/Attempt")]
     public async Task<IActionResult> SubmitActivityAttempt(SubmitActivityAttemptCommand command, CancellationToken cancellationToken)
