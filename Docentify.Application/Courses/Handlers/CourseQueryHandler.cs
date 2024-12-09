@@ -34,17 +34,11 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
         }
 
         var inProgressCourses = user.Enrollments
-            .Where(enrollment => (enrollment.UserProgresses.Any() &&
-                                  enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId !=
-                                  enrollment.Course.Steps.MaxBy(s => s.Order).Id) || (enrollment.IsActive && !enrollment.UserProgresses.Any()) )
-            .Select(enrollment => enrollment.CourseId).ToList();
-        inProgressCourses.AddRange(user.Enrollments
-            .Where(enrollment => enrollment.UserProgresses.Any() &&
-                                 enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId !=
-                                 enrollment.Course.Steps.MaxBy(s => s.Order).Id)
-            .Select(enrollment => enrollment.CourseId));
+            .Where(enrollment => enrollment.UserProgresses.Count != enrollment.Course.Steps.Count)
+            .Select(enrollment => enrollment.CourseId);
         var completedCourses = user.Enrollments
-            .Where(enrollment => enrollment.UserProgresses.Any() && enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId != enrollment.Course.Steps.MaxBy(s => s.Order).Id)
+            .Where(enrollment => enrollment.UserProgresses.Count == enrollment.Course.Steps.Count &&
+                                 enrollment.UserProgresses.Count != 0)
             .Select(enrollment => enrollment.CourseId);
         var favoriteCourses = user.Favorites.Select(favorite => favorite.CourseId);
 

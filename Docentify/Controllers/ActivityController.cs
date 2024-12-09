@@ -32,6 +32,18 @@ public class ActivityController(
         
         return Ok(result);
     }
+    
+    [HttpGet("Step/{stepId:int}")]
+    public async Task<IActionResult> GetActivityByStepId([FromRoute] int stepId, CancellationToken cancellationToken)
+    {
+        var query = new GetActivityByStepIdQuery { StepId = stepId };
+        
+        var jwtData = JwtUtils.GetJwtDataFromRequest(Request);
+        ActivityViewModel result;
+        result = await queryHandler.GetActivityByStepIdUserAsync(query, Request, cancellationToken);
+        
+        return Ok(result);
+    }
 
     [HttpGet("{activityId:int}/Attempt")]
     public async Task<IActionResult> GetActivityAttemptHistory(GetActivityAttemptHistoryQuery query, CancellationToken cancellationToken)

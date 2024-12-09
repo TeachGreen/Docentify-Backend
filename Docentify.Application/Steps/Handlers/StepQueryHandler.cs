@@ -49,8 +49,7 @@ public class StepQueryHandler(DatabaseContext context, IConfiguration configurat
             Type = step.Type,
             Content = step.Content,
             IsCompleted = step.UserProgresses
-                .FirstOrDefault(p => p.Enrollment.UserId == user.Id) is not null,
-            AssociatedActivity = step.Activity?.Id ?? null
+                .FirstOrDefault(p => p.Enrollment.UserId == user.Id) is not null
         };
     }
     

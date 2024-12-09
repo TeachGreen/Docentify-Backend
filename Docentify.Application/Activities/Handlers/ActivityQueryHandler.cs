@@ -60,6 +60,54 @@ public class ActivityQueryHandler(DatabaseContext context, IConfiguration config
         };
     }
     
+    public async Task<ActivityViewModel> GetActivityByStepIdUserAsync(GetActivityByStepIdQuery query, HttpRequest request,  CancellationToken cancellationToken)
+    {
+        var jwtData = JwtUtils.GetJwtDataFromRequest(request);
+        
+        var user = await context.Users.AsNoTracking()
+            .Include(u => u.Enrollments)
+            .Where(u => u.Email == jwtData["email"])
+            .FirstOrDefaultAsync(cancellationToken);
+        if (user is null)
+        {
+            throw new NotFoundException("No user with the provided authentication was found");
+        }
+        
+        var activity = await context.Activities.AsNoTracking()
+            .Where(a => a.StepId == query.StepId)
+            .Include(a => a.Step)
+            .Include(a => a.Questions)
+            .ThenInclude(q => q.Options)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (activity is null)
+        {
+            throw new NotFoundException("No activity associated with the step provided was found");
+        }
+        
+        if (!user.Enrollments.Select(e => e.CourseId).Contains(activity.Step.CourseId))
+        {
+            throw new ForbiddenException("User is not enrolled in the course that contains the provided activity");
+        }
+    
+        return new ActivityViewModel
+        {
+            Id = activity.Id,
+            AllowedAttempts = activity.AllowedAttempts,
+            StepId = activity.StepId,
+            Questions = activity.Questions.Select(q => new QuestionValueObject
+            {
+                Id = q.Id,
+                Statement = q.Statement,
+                Options = q.Options.Select(o => new OptionValueObject
+                {
+                    Id = o.Id,
+                    Text = o.Text,
+                    IsCorrect = null
+                }).ToList()
+            }).ToList()
+        };
+    }
+    
     public async Task<ActivityViewModel> GetActivityByIdInstitutionAsync(GetActivityByIdQuery query, HttpRequest request,  CancellationToken cancellationToken)
     {
         var jwtData = JwtUtils.GetJwtDataFromRequest(request);
@@ -144,7 +192,7 @@ public class ActivityQueryHandler(DatabaseContext context, IConfiguration config
             ActivityId = a.ActivityId,
             Score = a.Score,
             Date = a.Date,
-            Passed = a.Score >= activity.Questions.Count / 2
+            Passed = a.Passed
         }).ToList();
         
         return attempts;

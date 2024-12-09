@@ -11,5 +11,4 @@ public class StepViewModel
     public EStepType Type { get; set; } 
     public string Content { get; set; }
     public bool IsCompleted { get; set; }
-    public int? AssociatedActivity { get; set; }
 }

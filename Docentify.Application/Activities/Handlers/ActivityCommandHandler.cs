@@ -3,6 +3,7 @@ using Docentify.Application.Activities.ValueObjects;
 using Docentify.Application.Activities.ViewModels;
 using Docentify.Application.Utils;
 using Docentify.Domain.Entities.Step;
+using Docentify.Domain.Entities.User;
 using Docentify.Domain.Exceptions;
 using Docentify.Infrastructure.Database;
 using Microsoft.AspNetCore.Http;
@@ -200,7 +201,7 @@ public class ActivityCommandHandler(DatabaseContext context, IConfiguration conf
     {
         var jwtData = JwtUtils.GetJwtDataFromRequest(request);
         
-        var user = await context.Users.AsNoTracking()
+        var user = await context.Users
             .Include(u => u.Enrollments)
             .Where(u => u.Email == jwtData["email"])
             .FirstOrDefaultAsync(cancellationToken);
@@ -209,7 +210,7 @@ public class ActivityCommandHandler(DatabaseContext context, IConfiguration conf
             throw new NotFoundException("No user with the provided authentication was found");
         }
         
-        var activity = await context.Activities.AsNoTracking()
+        var activity = await context.Activities
             .Where(a => a.Id == command.ActivityId)
             .Include(a => a.Step)
             .Include(a => a.Questions)
@@ -219,8 +220,9 @@ public class ActivityCommandHandler(DatabaseContext context, IConfiguration conf
         {
             throw new NotFoundException("No activity with the provided id was found");
         }
-        
-        if (!user.Enrollments.Select(e => e.CourseId).Contains(activity.Step.CourseId))
+
+        var enrollment = user.Enrollments.FirstOrDefault(e => e.CourseId == activity.Step.CourseId);
+        if (enrollment is null)
         {
             throw new ForbiddenException("User is not enrolled in the course that contains the provided activity");
         }
@@ -245,23 +247,34 @@ public class ActivityCommandHandler(DatabaseContext context, IConfiguration conf
                 correctAnswers++;
             }
         }
-        
+        var passed = correctAnswers >= double.Ceiling(activity.Questions.Count / 2d);
         var attempt = new AttemptEntity
         {
             Score = correctAnswers,
             Date = DateTime.Now,
             UserId = user.Id,
-            ActivityId = activity.Id
+            ActivityId = activity.Id,
+            Passed = passed
         };
-
-        await context.Attempts.AddAsync(attempt, cancellationToken);
-
+        activity.Attempts.Add(attempt);
+        
+        if (passed && activity.Step.UserProgresses.All(up => up.StepId != activity.StepId && up.EnrollmentId == enrollment.Id))
+        {
+            var userProgress = new UserProgressEntity
+            {
+                Enrollment = user.Enrollments.First(e => e.CourseId == activity.Step.CourseId),
+                Step = activity.Step,
+                ProgressDate = DateTime.Now
+            };
+            activity.Step.UserProgresses.Add(userProgress);
+        }
+        
         await context.SaveChangesAsync(cancellationToken);
-    
+        
         return new AttemptResultViewModel
         {
             Score = correctAnswers,
-            Passed = correctAnswers >= activity.Questions.Count / 2
+            Passed = passed
         };
     }
     

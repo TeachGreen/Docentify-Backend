@@ -12,6 +12,9 @@ public class AttemptEntity
     [Column("score")]
     public int Score { get; set; }
     
+    [Column("passed")]
+    public bool Passed { get; set; }
+    
     [Column("date")]
     public DateTime Date { get; set; }
     
