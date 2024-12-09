@@ -46,6 +46,9 @@ public class StepCommandHandler(DatabaseContext context, IConfiguration configur
         var lastStep = course.Steps.OrderByDescending(s => s.Order).FirstOrDefault();
         step.Order = lastStep?.Order + 1 ?? 1;
         
+        if (step.Type == EStepType.ActivityStep)
+            step.Activity = new ActivityEntity();
+        
         course.Steps.Add(step);
         
         await context.SaveChangesAsync(cancellationToken);
@@ -169,7 +172,6 @@ public class StepCommandHandler(DatabaseContext context, IConfiguration configur
             throw new ConflictException("User has already completed the provided step");
         }
         
-         
         user.UserScore.Score += step.Type switch 
         {
             EStepType.VideoStep => 5,
