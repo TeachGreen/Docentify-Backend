@@ -30,13 +30,13 @@ public class RankingQueryHandler(DatabaseContext context, IConfiguration configu
 
         var ranking = context.Database.SqlQueryRaw<RankingPositionValueObject>($"""
             SET @rownum = 0;
-            SELECT * FROM (SELECT name, score, (@rownum:=@rownum + 1) AS position FROM (SELECT name, score
+            SELECT * FROM (SELECT userid, name, score, (@rownum:=@rownum + 1) AS position FROM 
+            (SELECT userid, name, score
             FROM users
             INNER JOIN userscores ON users.id = userscores.userId
-
             ORDER BY score DESC, name DESC) AS a) AS b
             {(query.Search is not null ? $"WHERE LOWER(name) LIKE '%{query.Search.ToLower()}%'" : "")}
-            LIMIT 10 OFFSET {(query.Page - 1) * 10}                                          
+            LIMIT 10 OFFSET {(query.Page - 1) * 10}                   
         """).ToList();
         
         return new RankingViewModel
