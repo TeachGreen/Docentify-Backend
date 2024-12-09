@@ -113,7 +113,8 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
 
         return new LoginViewModel
         {
-            Jwt = jwtString
+            Jwt = jwtString,
+            UserId = user.Id
         };
     }
 
