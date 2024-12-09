@@ -203,6 +203,7 @@ public class ActivityCommandHandler(DatabaseContext context, IConfiguration conf
         
         var user = await context.Users
             .Include(u => u.Enrollments)
+            .Include(u => u.UserScore)
             .Where(u => u.Email == jwtData["email"])
             .FirstOrDefaultAsync(cancellationToken);
         if (user is null)
@@ -248,6 +249,7 @@ public class ActivityCommandHandler(DatabaseContext context, IConfiguration conf
             }
         }
         var passed = correctAnswers >= double.Ceiling(activity.Questions.Count / 2d);
+        user.UserScore!.Score += passed ? 10 : 2;
         var attempt = new AttemptEntity
         {
             Score = correctAnswers,

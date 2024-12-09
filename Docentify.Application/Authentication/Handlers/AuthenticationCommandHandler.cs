@@ -50,6 +50,7 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             .Include(i => i.Users)
             .FirstOrDefaultAsync(i => i.Email == "docentify@gmail.com", cancellationToken);
         user.Institutions.Add(docentify);
+        user.UserScore = new UserScoreEntity { Score = 0 };
         await context.Users.AddAsync(user, cancellationToken);
         docentify.Users.Add(user);
         

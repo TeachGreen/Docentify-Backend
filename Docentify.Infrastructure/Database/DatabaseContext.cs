@@ -30,6 +30,8 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     
     public DbSet<UserProgressEntity> UserProgresses { get; set; }
     
+    public DbSet<UserScoreEntity> UserScores { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<InstitutionEntity>(entity =>
@@ -161,6 +163,11 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.HasOne(d => d.User).WithMany(p => p.Attempts)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("activityattempts_ibfk_1");
+        });
+        
+        modelBuilder.Entity<UserScoreEntity>(entity =>
+        {
+            entity.HasKey(e => e.UserId).HasName("PRIMARY");
         });
         
         modelBuilder.Entity<UserPasswordHashEntity>(entity =>

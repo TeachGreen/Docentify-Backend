@@ -4,6 +4,7 @@ using Docentify.Application.Steps.ViewModels;
 using Docentify.Application.Utils;
 using Docentify.Domain.Entities.Step;
 using Docentify.Domain.Entities.User;
+using Docentify.Domain.Enums;
 using Docentify.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Docentify.Infrastructure.Database;
@@ -139,6 +140,7 @@ public class StepCommandHandler(DatabaseContext context, IConfiguration configur
         
         var user = await context.Users
             .Include(u => u.Enrollments)
+            .Include(u => u.UserScore)
             .Where(u => u.Email == jwtData["email"])
             .FirstOrDefaultAsync(cancellationToken);
         if (user is null)
@@ -166,6 +168,14 @@ public class StepCommandHandler(DatabaseContext context, IConfiguration configur
         {
             throw new ConflictException("User has already completed the provided step");
         }
+        
+         
+        user.UserScore.Score += step.Type switch 
+        {
+            EStepType.VideoStep => 5,
+            EStepType.TextStep => 3,
+            _ => 0
+        };
         
         var userProgress = new UserProgressEntity()
         {
