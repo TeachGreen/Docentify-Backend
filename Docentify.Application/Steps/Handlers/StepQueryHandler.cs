@@ -27,6 +27,7 @@ public class StepQueryHandler(DatabaseContext context, IConfiguration configurat
         var step = await context.Steps.AsNoTracking()
             .Include(s => s.UserProgresses)
             .ThenInclude(u => u.Enrollment)
+            .Include((s => s.Activity))
             .Where(s => s.Id == query.StepId)
             .FirstOrDefaultAsync(cancellationToken);
         if (step is null)
@@ -39,9 +40,6 @@ public class StepQueryHandler(DatabaseContext context, IConfiguration configurat
             throw new ForbiddenException("User is not enrolled in the course that contains the provided step");
         }
 
-        var teste = step.UserProgresses
-            .FirstOrDefault(p => p.Enrollment.UserId == user.Id);
-
         return new StepViewModel
         {
             Id = step.Id,
@@ -51,7 +49,8 @@ public class StepQueryHandler(DatabaseContext context, IConfiguration configurat
             Type = step.Type,
             Content = step.Content,
             IsCompleted = step.UserProgresses
-                .FirstOrDefault(p => p.Enrollment.UserId == user.Id) is not null
+                .FirstOrDefault(p => p.Enrollment.UserId == user.Id) is not null,
+            AssociatedActivity = step.Activity?.Id ?? null
         };
     }
     

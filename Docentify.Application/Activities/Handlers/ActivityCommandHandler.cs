@@ -95,7 +95,7 @@ public class ActivityCommandHandler(DatabaseContext context, IConfiguration conf
             throw new NotFoundException("No course containing an activity with the provided id was found in your institution");
         }
         
-        var step = course.Steps.FirstOrDefault(s => s.Activity.Id == command.ActivityId);
+        var step = course.Steps.Where(s => s.Activity is not null).FirstOrDefault(s => s.Activity.Id == command.ActivityId);
         if (step is null)
         {
             throw new NotFoundException("No activity with the provided id was found");
