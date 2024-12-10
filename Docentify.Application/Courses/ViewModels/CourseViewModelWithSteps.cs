@@ -11,5 +11,6 @@ public class CourseWithStepsViewModel
     public bool IsRequired { get; set; }
     public bool IsEnrolled { get; set; }
     public DateTime? RequiredDate { get; set; }
+    public string Image { get; set; }
     public List<StepValueObject> Steps;
 }

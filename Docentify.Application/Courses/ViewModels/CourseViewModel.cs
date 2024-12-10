@@ -10,4 +10,5 @@ public class CourseViewModel
     public bool? IsEnrolled { get; set; }
     public int? RequiredTimeLimit { get; set; }
     public int? Duration { get; set; }
+    public string? Image { get; set; }
 }

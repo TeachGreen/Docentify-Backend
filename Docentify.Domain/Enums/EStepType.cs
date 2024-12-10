@@ -2,7 +2,7 @@ namespace Docentify.Domain.Enums;
 
 public enum EStepType
 {
-    TextStep,
-    VideoStep,
-    ActivityStep
+    TextStep = 1,
+    VideoStep = 2,
+    ActivityStep = 3
 }

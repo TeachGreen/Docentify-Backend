@@ -105,7 +105,8 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
                 IsRequired = c.IsRequired.GetValueOrDefault(),
                 IsFavorited = favoriteCourses.Contains(c.Id),
                 RequiredTimeLimit = c.RequiredTimeLimit,
-                Duration = c.Duration
+                Duration = c.Duration,
+                Image = c.Image
             })
             .ToListAsync(cancellationToken);
     }
@@ -135,7 +136,8 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
                 Name = c.Name,
                 Description = c.Description,
                 IsRequired = c.IsRequired.GetValueOrDefault(),
-                Duration = c.Duration
+                Duration = c.Duration,
+                Image = c.Image
             })
             .ToListAsync(cancellationToken);
     }
@@ -170,7 +172,8 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
                 IsRequired = course.IsRequired.GetValueOrDefault(),
                 IsEnrolled = user.Enrollments.Select(e => e.CourseId).Contains(course.Id),
                 RequiredTimeLimit = course.RequiredTimeLimit,
-                Duration = course.Duration
+                Duration = course.Duration,
+                Image = course.Image
             };
     }
     
@@ -210,6 +213,7 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             IsEnrolled = user.Enrollments.Select(e => e.CourseId).Contains(course.Id),
             RequiredDate = enrollment?.EnrollmentDate.GetValueOrDefault().AddDays(course.RequiredTimeLimit),
             Duration = course.Duration,
+            Image = course.Image,
             Steps = course.Steps.Select(s => new StepValueObject
             {
                 Id = s.Id,
