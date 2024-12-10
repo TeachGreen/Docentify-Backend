@@ -39,9 +39,29 @@ public class RankingQueryHandler(DatabaseContext context, IConfiguration configu
             LIMIT 10 OFFSET {(query.Page - 1) * 10}                   
         """).ToList();
         
+            var userRanking = context.Database.SqlQueryRaw<int>($"""
+                SET @rownum = 0;
+                SELECT position FROM (SELECT userid, name, score, (@rownum:=@rownum + 1) AS position FROM 
+                (SELECT userid, name, score
+                FROM users
+                INNER JOIN userscores ON users.id = userscores.userId
+                ORDER BY score DESC, name DESC) AS a) AS b
+                WHERE userid = {user.Id}
+            """).ToList()[0];
+        
+        var maxPage = (int)double.Ceiling(context.Database.SqlQueryRaw<int>($"""
+            SELECT COUNT(*)
+            FROM users
+            INNER JOIN userscores ON users.id = userscores.userId
+            ORDER BY score DESC, name DESC
+            {(query.Search is not null ? $"WHERE LOWER(name) LIKE '%{query.Search.ToLower()}%'" : "")}
+        """).ToList()[0] / 10d) + 1;
+        
         return new RankingViewModel
         {
-            Rankings = ranking
+            Rankings = ranking,
+            MaxPage = maxPage,
+            UserRanking = userRanking
         };
     }
 }
