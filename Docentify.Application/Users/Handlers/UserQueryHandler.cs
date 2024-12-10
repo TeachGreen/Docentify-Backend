@@ -62,15 +62,8 @@ public class UserQueryHandler(DatabaseContext context, IConfiguration configurat
         }
         
         var inProgressCourses = user.Enrollments
-            .Where(enrollment => (enrollment.UserProgresses.Any() &&
-                                  enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId !=
-                                  enrollment.Course.Steps.MaxBy(s => s.Order).Id) || (enrollment.IsActive && !enrollment.UserProgresses.Any()) )
-            .Select(enrollment => enrollment.CourseId).ToList();
-        inProgressCourses.AddRange(user.Enrollments
-            .Where(enrollment => enrollment.UserProgresses.Any() &&
-                                 enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId !=
-                                 enrollment.Course.Steps.MaxBy(s => s.Order).Id)
-            .Select(enrollment => enrollment.CourseId));
+            .Where(enrollment => enrollment.UserProgresses.Count != enrollment.Course.Steps.Count)
+            .Select(enrollment => enrollment.CourseId).Count();
         var completedCourses = user.Enrollments
             .Where(enrollment => enrollment.UserProgresses.Any() && enrollment.UserProgresses.MaxBy(up => up.ProgressDate).StepId != enrollment.Course.Steps.MaxBy(s => s.Order).Id)
             .Select(enrollment => enrollment.CourseId).Count();
@@ -86,7 +79,7 @@ public class UserQueryHandler(DatabaseContext context, IConfiguration configurat
             Document = user.Document,
             Gender = user.Gender,
             CompletedCourses = completedCourses,
-            OngoingCourses = inProgressCourses.Count,
+            OngoingCourses = inProgressCourses,
             CancelledEnrollments = cancelledEnrollments
         };            
     }
