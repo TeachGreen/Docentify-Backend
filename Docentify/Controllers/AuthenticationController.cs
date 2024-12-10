@@ -56,4 +56,25 @@ public class AuthenticationController(
         var result = await commandHandler.LoginInstitutionAsync(command, cancellationToken);
         return Ok(result);
     }
+    
+    [HttpPost("PasswordChangeRequest/User")]
+    public async Task<IActionResult> PasswordChangeRequestUser([FromBody] PasswordChangeRequestUserCommand command, CancellationToken cancellationToken)
+    {
+        var result = await commandHandler.PasswordChangeRequestUserAsync(command, cancellationToken);
+        return Ok(result);
+    }
+    
+    [HttpPost("ConfirmIdentity/User")]
+    public async Task<IActionResult> IdentityConfirmationUser([FromBody] IdentityConfirmationUserCommand command, CancellationToken cancellationToken)
+    {
+        var result = await commandHandler.IdentityConfirmationUserAsync(command, cancellationToken);
+        return Ok(result);
+    }
+    
+    [HttpPost("PasswordCreation/User")]
+    public async Task<IActionResult> NewPasswordCreationUser([FromBody] NewPasswordCreationUserCommand command, CancellationToken cancellationToken)
+    {
+        var result = await commandHandler.NewPasswordCreationUserAsync(command, cancellationToken);
+        return Ok(result);
+    }
 }

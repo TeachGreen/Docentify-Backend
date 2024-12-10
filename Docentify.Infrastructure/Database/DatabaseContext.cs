@@ -32,6 +32,8 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     
     public DbSet<UserScoreEntity> UserScores { get; set; }
     
+    public DbSet<PasswordChangeRequestEntity> PasswordChangeRequests { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<InstitutionEntity>(entity =>

@@ -1,4 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using Docentify.Application.Authentication.Commands;
@@ -195,4 +197,87 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
             Jwt = jwtString
         };
     }
+    
+    public async Task<PasswordChangeRequestViewModel> PasswordChangeRequestUserAsync(PasswordChangeRequestUserCommand command, CancellationToken cancellationToken)
+    {
+        var user = await context.Users.AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Email == command.Email, cancellationToken);
+
+        if (user is null)
+            throw new NotFoundException("No user with that e-mail was found");
+        
+        var generator = new Random();
+        var code = generator.Next(0, 1000000).ToString("D6");
+
+        var passwordChangeSession = new PasswordChangeRequestEntity
+        {
+            Email = command.Email,
+            Code = code,
+            ExpiresAt = DateTime.Now.AddMinutes(30)
+        }; 
+        await context.PasswordChangeRequests.AddAsync(passwordChangeSession, cancellationToken);
+        
+        await context.SaveChangesAsync(cancellationToken);
+        
+        MailMessage mail = new MailMessage
+        {
+            From = new MailAddress(configuration["EmailUser"], "Docentify")
+        };
+
+        mail.To.Add(new MailAddress(command.Email));
+
+        mail.Subject = "Código de Confirmação de Identidade - Docentify";
+        mail.Body = $"Seu código de confirmação de identidade é: {code}";
+        mail.Priority = MailPriority.High;
+
+        using (SmtpClient smtp = new SmtpClient(configuration["EmailHost"], 587))
+        {
+            smtp.Credentials = new NetworkCredential(configuration["EmailUser"], configuration["EmailPassword"]);
+            smtp.EnableSsl = true;
+            await smtp.SendMailAsync(mail);
+        }
+
+        return new PasswordChangeRequestViewModel
+        {
+            Id = passwordChangeSession.Id
+        };
+    }
+    
+    public async Task<IdentityConfirmationViewModel> IdentityConfirmationUserAsync(IdentityConfirmationUserCommand command, CancellationToken cancellationToken)
+    {
+        var session = await context.PasswordChangeRequests.AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == command.Id, cancellationToken);
+        
+        return new IdentityConfirmationViewModel()
+        {
+            Confirmed = session.Code == command.Code
+        };
+    }
+    
+    public async Task<NewPasswordCreationViewModel> NewPasswordCreationUserAsync(NewPasswordCreationUserCommand command, CancellationToken cancellationToken)
+    {
+        var session = await context.PasswordChangeRequests.AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == command.Id, cancellationToken);
+
+        if (session.Code == command.Code)
+        {
+            var parsedPasswordHash =
+                AuthenticationUtils.CreatePasswordHash(command.Password!, configuration["PasswordPepper"]!);
+            
+            var user = await context.Users
+                .Include(u => u.UserPasswordHash)
+                .FirstOrDefaultAsync(u => u.Email == session.Email, cancellationToken);
+            
+            user.UserPasswordHash.HashedPassword = parsedPasswordHash.Item1;
+            user.UserPasswordHash.Salt = parsedPasswordHash.Item2;
+
+            await context.SaveChangesAsync();
+        }
+        
+        return new NewPasswordCreationViewModel
+        {
+            Success = session.Code == command.Code
+        };
+    }
+
 }
