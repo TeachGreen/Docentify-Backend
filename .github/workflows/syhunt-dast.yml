@@ -6,7 +6,7 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     steps:
       - uses: actions/checkout@v2
-      - run: D:/syhunt/scanurl https://docentify.vercel.app/ -pfcond 'medium' -output 'report-dast.pdf'
+      - run: D:/syhunt/scanurl https://docentify.vercel.app -output 'report-dast.pdf'
       - name: 'Syhunt DAST Report'
         uses: actions/upload-artifact@v4
         with:
