@@ -1,19 +1,16 @@
 name: Syhunt SAST Scan
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 jobs:
   build:
     runs-on: [self-hosted, Windows, X64, syhunt]
     steps:
       - uses: actions/checkout@v2
-      - run: Start-CodeScan -pfcond 'medium' -output 'report.pdf'
-      - name: 'Syhunt Report'
+      - run: D:/syhunt/scancode https://github.com/TeachGreen/Docentify-Backend.git -rb:main -pfcond 'high' -output 'report-sast.pdf'
+      - name: 'Syhunt SAST Report'
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-         name: syhunt-report
-         path: report.pdf
+         name: syhunt-report-sast
+         path: report-sast.pdf
          if-no-files-found: error

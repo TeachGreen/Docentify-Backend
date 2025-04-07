@@ -1,0 +1,16 @@
+name: Syhunt DAST Scan
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    steps:
+      - uses: actions/checkout@v2
+      - run: D:/syhunt/scanurl -target 'www.productionurl.com' -pfcond 'medium' -output 'report-dast.pdf'
+      - name: 'Syhunt DAST Report'
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+         name: syhunt-report-dast
+         path: report-dast.pdf
+         if-no-files-found: error
