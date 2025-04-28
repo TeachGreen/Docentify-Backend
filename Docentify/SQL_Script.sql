@@ -308,6 +308,16 @@ CREATE TABLE ActivityAttempts (
       ON DELETE CASCADE
 );
 
+CREATE TABLE MFARequests (
+   id int NOT NULL AUTO_INCREMENT,
+   code int NOT NULL,
+   creationDate datetime NULL,
+   updateDate datetime NULL,
+   UserId int NOT NULL,
+   PRIMARY KEY (id),
+   FOREIGN KEY (UserId) REFERENCES users (id) ON DELETE CASCADE
+);
+
 -- Inserir usuários
 INSERT INTO Users (name, birthDate, email, telephone, document)
 VALUES
