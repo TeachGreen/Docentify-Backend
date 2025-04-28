@@ -35,6 +35,13 @@ public class AuthenticationController(
         return Ok(result);
     }
     
+    [HttpPost("Login/User/MFA")]
+    public async Task<IActionResult> ConfirmMFACode([FromBody] ConfirmMFACodeCommand command, CancellationToken cancellationToken)
+    {
+        var result = await commandHandler.ConfirmMFACodeAsync(command, cancellationToken);
+        return Ok(result);
+    }
+    
     [HttpPost("Register/Institution")]
     public async Task<IActionResult> RegisterInstitution([FromBody] RegisterInstitutionCommand command, [FromServices] RegisterInstitutionCommandValidator validator, CancellationToken cancellationToken)
     {

@@ -57,6 +57,9 @@ public class UserEntity
 
     [InverseProperty("User")]
     public virtual ICollection<UserPreferencesValueEntity> UserPreferencesValues { get; set; } = new List<UserPreferencesValueEntity>();
+    
+    [InverseProperty("User")]
+    public virtual ICollection<MultiFactorAuthenticationRequestEntity> MFARequests { get; set; } = new List<MultiFactorAuthenticationRequestEntity>();
 
     [InverseProperty("User")]
     public virtual UserScoreEntity? UserScore { get; set; }

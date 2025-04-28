@@ -78,10 +78,11 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
         };
     }
 
-    public async Task<LoginViewModel> LoginUserAsync(LoginCommand command, CancellationToken cancellationToken)
+    public async Task<dynamic> LoginUserAsync(LoginCommand command, CancellationToken cancellationToken)
     {
-        var user = await context.Users.AsNoTracking()
+        var user = await context.Users
             .Include(u => u.UserPasswordHash)
+            .Include(u => u.UserPreferencesValues)
             .FirstOrDefaultAsync(u => u.Email == command.Email, cancellationToken);
 
         if (user is null)
@@ -92,6 +93,47 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
         if (user.UserPasswordHash.HashedPassword != parsedPasswordHash)
             throw new UnauthorizedException("Invalid user credentials");
 
+        var hasMfa = user.UserPreferencesValues.Any(entity => entity is { PreferenceId: 3, Value: "true" });
+        if (hasMfa)
+        {
+            var generator = new Random();
+            var code = generator.Next(1, 1000000);
+            
+            var mfaSession = new MultiFactorAuthenticationRequestEntity
+            {
+                Code = code,
+                CreationDate = DateTime.Now,
+                UpdateDate = DateTime.Now,
+            };
+            user.MFARequests.Add(mfaSession);
+        
+            await context.SaveChangesAsync(cancellationToken);
+        
+            MailMessage mail = new MailMessage
+            {
+                From = new MailAddress(configuration["EmailUser"], "Docentify")
+            };
+
+            mail.To.Add(new MailAddress(user.Email));
+
+            mail.Subject = "Código de Confirmação de Identidade - Docentify";
+            mail.Body = $"Seu código de confirmação de identidade é: {code:D6}";
+            mail.Priority = MailPriority.High;
+
+            using (SmtpClient smtp = new SmtpClient(configuration["EmailHost"], 587))
+            {
+                smtp.Credentials = new NetworkCredential(configuration["EmailUser"], configuration["EmailPassword"]);
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(mail);
+            }
+
+            return new
+            {
+                mfaSession.Id,
+                Message = "Código de autenticação de dois fatores enviado para o e-mail de usuário", 
+            };
+        }
+        
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Email, user.Email),
@@ -120,6 +162,48 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
         };
     }
 
+    public async Task<LoginViewModel> ConfirmMFACodeAsync(ConfirmMFACodeCommand command, CancellationToken cancellationToken)
+    {
+        var session = await context.MFARequests
+            .Include(s => s.User)
+            .FirstOrDefaultAsync(s => s.Id == command.Id, cancellationToken);
+
+        if (session is null)
+            throw new NotFoundException("No MFA session with that ID was found");
+        
+        var isValid = session.Code == command.Code && session.CreationDate < DateTime.Now.AddMinutes(30);
+        if (!isValid)
+            throw new ForbiddenException("Invalid code");
+
+        var user = session.User;
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.UniqueName, user.Name),
+            new(JwtRegisteredClaimNames.Aud, "Users"),
+            new(ClaimTypes.Role, "Users")
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtKey"]!));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var jwt = new JwtSecurityToken(configuration["JwtIssuer"],
+            "Users",
+            claims,
+            expires: DateTime.Now.AddDays(7),
+            signingCredentials: credentials);
+
+        var jwtHandler = new JwtSecurityTokenHandler();
+
+        var jwtString = jwtHandler.WriteToken(jwt);
+        
+        return new LoginViewModel
+        {
+            Jwt = jwtString,
+            UserId = user.Id
+        };
+    }
+    
     public async Task<RegisterInstitutionViewModel> RegisterInstitutionAsync(RegisterInstitutionCommand command,
         CancellationToken cancellationToken)
     {

@@ -34,6 +34,8 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     
     public DbSet<PasswordChangeRequestEntity> PasswordChangeRequests { get; set; }
     
+    public DbSet<MultiFactorAuthenticationRequestEntity> MFARequests { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<InstitutionEntity>(entity =>
