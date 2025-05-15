@@ -278,6 +278,7 @@ public class AuthenticationCommandHandler(DatabaseContext context, IConfiguratio
 
         return new LoginViewModel
         {
+            UserId = institution.Id,
             Jwt = jwtString
         };
     }
