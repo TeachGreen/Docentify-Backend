@@ -211,8 +211,8 @@ public class CourseQueryHandler(DatabaseContext context, IConfiguration configur
             Description = course.Description,
             IsRequired = course.IsRequired.GetValueOrDefault(),
             IsEnrolled = user.Enrollments.Select(e => e.CourseId).Contains(course.Id),
-            RequiredDate = enrollment?.EnrollmentDate.GetValueOrDefault().AddDays(course.RequiredTimeLimit),
-            Duration = course.Duration,
+            RequiredDate = enrollment?.EnrollmentDate.GetValueOrDefault().AddDays(course.RequiredTimeLimit.GetValueOrDefault()),
+            Duration = course.Duration.GetValueOrDefault(),
             Image = course.Image,
             Steps = course.Steps.Select(s => new StepValueObject
             {

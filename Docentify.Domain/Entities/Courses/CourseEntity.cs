@@ -23,16 +23,16 @@ public class CourseEntity
     public bool? IsRequired { get; set; } = false;
     
     [Column("duration")]
-    public int Duration { get; set; }
+    public int? Duration { get; set; }
     
     [Column("requiredTimeLimit")]
-    public int RequiredTimeLimit { get; set; } = 30;
+    public int? RequiredTimeLimit { get; set; } = 30;
 
     [Column("institutionId")]
     public int InstitutionId { get; set; }
     
     [Column("image")]
-    public string Image { get; set; } = null!;
+    public string? Image { get; set; } = null!;
 
     [Column("creationDate", TypeName = "datetime")]
     public DateTime? CreationDate { get; set; }
